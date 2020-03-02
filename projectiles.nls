@@ -1,0 +1,64 @@
+; **************
+; *** SETUP  ***
+; **************
+
+breed [projectiles projectile]
+projectiles-own [ is-live hit projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining traveled nearest-zombie]
+
+to projectile-init
+  set shape "circle"
+  set size 1
+  set color yellow
+  set is-live true
+  set hit (false)
+  set traveled 0
+  rt ((random projectile-inaccuracy) - projectile-inaccuracy / 2) ; Randomly turn +/-(inacccuracy/2)
+  set label ""
+end
+
+; **************************
+; *** ACTION PROCEDURES  ***
+; **************************
+
+to projectile-ai
+  repeat projectile-iter-per-tick
+  [ if is-live
+    [ projectile-move
+      check-range
+      stun-zombies ]
+  ]
+end
+
+to projectile-move
+  fd projectile-speed / projectile-iter-per-tick
+end
+
+to check-range 
+  ; increment distance travelede
+  set traveled (traveled + projectile-speed / projectile-iter-per-tick)
+  ; set dead if did not travel far enough
+  if traveled >= projectile-range
+  [ set is-live false 
+    set color (yellow - 3)]
+end
+
+to stun-zombies 
+  ; if within zombie hit-box range, zombie and sock are both dead
+  set nearest-zombie find-nearest-zombie
+  if nearest-zombie != Nobody 
+  [ if distance nearest-zombie <= zombie-hit-box-radius
+    [ ask nearest-zombie 
+      [ set is-live false
+        set color (red - 3)]
+      set hit (true)
+      set is-live (false)
+      set color (yellow - 3)
+    ]
+  ]
+end
+
+; **************************
+; *** UTILITY PROCEDURES ***
+; **************************
+
+; None

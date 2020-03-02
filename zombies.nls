@@ -2,14 +2,22 @@
 ; *** SETUP  ***
 ; **************
 
+; This is a test
+
 breed [zombies zombie]
-zombies-own [is-live speed]
+zombies-own [is-live speed nearest-human]
 
 to zombie-init
   set shape "person"
-  set size 2
+  set size 6 ; 6 feet tall
   set color red
-  setxy random-xcor random-ycor 
+    (ifelse
+    (scenario = "Random distribution")
+    [setxy random-xcor random-ycor]
+    ; Set all zombies to the top half of the field.
+    (scenario = "Charge")
+    [setxy random-xcor random max-pxcor]
+  )
   set is-live true
   set speed zombie-speed / ticks-per-second
 end
@@ -19,27 +27,28 @@ end
 ; **************************
 
 to zombie-ai
-  ; If there are no live humans, stop.
-  if not any? humans with [ is-live ] [ stop ]
   zombie-move
   kill-human
 end
 
 to zombie-move
+  set nearest-human find-nearest-human
+  if nearest-human != Nobody
   ; Face towards nearest human, then move
-  face find-nearest-human 
-  fd speed
+  [ face find-nearest-human 
+    fd speed ]
 end
 
 to kill-human
+  set nearest-human find-nearest-human
+  if find-nearest-human != Nobody
   ; Kill nearest human if in range
-  if distance find-nearest-human <= zombie-tag-range 
-    [ ask find-nearest-human 
+  [ if distance nearest-human <= zombie-tag-range 
+    [ ask nearest-human 
       [ set is-live false
         set color blue - 3 ]
+    ]
   ]
-  ; If the last human is dead, end simulation
-  if find-nearest-human = Nobody [ stop ]
 end
 
 ; **************************

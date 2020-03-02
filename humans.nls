@@ -3,17 +3,47 @@
 ; **************
 
 breed [humans human]
-humans-own [ is-live speed cooldown-timer zone-zombies ]
+humans-own [ is-live run-speed projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining projectile-cooldown cooldown-timer nearest-zombie zone-zombies ]
 
-; Initialization
 to human-init
   set shape "person"
-  set size 2
-  set color blue
-  setxy random-xcor random-ycor
+  set size 6 ; 6 feet tall
+  (ifelse
+    (scenario = "Random distribution")
+    [setxy random-xcor random-ycor]
+    ; Set all humans to the bottom half of the field.
+    (scenario = "Charge")
+    [setxy (random-xcor) (random min-pycor / 2)]
+  )
   set is-live true
-  set speed human-speed / ticks-per-second
+  set run-speed (human-speed / ticks-per-second)
   set cooldown-timer 0
+end
+
+to sock-human-init
+  set projectile-type "sock"
+  set color blue + 1
+  set projectile-range (sock-range)
+  set projectile-speed (sock-speed / ticks-per-second)
+  set projectile-inaccuracy (sock-inaccuracy)
+  set projectiles-remaining (starting-socks)
+  set projectile-cooldown (sock-cooldown)
+  ifelse show-number-projectiles
+  [ set label projectiles-remaining ]
+  [ set label "" ]
+end
+
+to blaster-human-init
+  set projectile-type "blaster"
+  set color blue
+  set projectile-range (dart-range)
+  set projectile-speed (dart-speed / ticks-per-second)
+  set projectile-inaccuracy (dart-inaccuracy)
+  set projectiles-remaining (starting-darts)
+  set projectile-cooldown (dart-cooldown)
+  ifelse show-number-projectiles
+  [ set label projectiles-remaining ]
+  [ set label "" ]
 end
   
 ; **************************
@@ -21,47 +51,52 @@ end
 ; **************************
 
 to human-ai
-  ; If there are no live zombies, stop.
-  if not any? zombies with [ is-live ] [ stop ]
   human-move
-  throw-sock
+  launch-projectile
+  update-human-label
 end
 
 to human-move
   (ifelse 
     ; Move away from the nearest zombie  
     (human-move-style = "nearest")
-    [ face find-nearest-zombie
-      rt 180
-      fd speed
+    [ set nearest-zombie find-nearest-zombie
+      if nearest-zombie != Nobody 
+      [ face find-nearest-zombie
+        rt 180
+        fd run-speed ]
     ]
-    ; Move away from the center-of-mass of nearby zombies. If none are close, stand still.
+    ; Move away from the center-of-mass of nearby zombies.
     (human-move-style = "zone-evasion")
     [ set zone-zombies zombies in-radius zone-evasion-radius with [ is-live ]
       if any? zone-zombies 
       [ facexy (sum ([xcor] of zone-zombies) / count (zone-zombies)) (sum ([ycor] of zone-zombies) / count (zone-zombies))
         rt 180
-        fd speed
-      ]
+        fd run-speed ]
     ]
   )
-  
-  
 end
 
-to throw-sock
-  ; if there is a nearest zombie, they are within sock range, and cooldown is less than 0
+to launch-projectile
+  set nearest-zombie (find-nearest-zombie)
   if find-nearest-zombie != nobody
-  [ if (distance find-nearest-zombie <= sock-shot-range) and (cooldown-timer <= 0)
-    ; throw a sock at them
-    [ hatch-socks 1 
-      [ sock-init
-        face find-nearest-zombie ]
-      set cooldown-timer sock-cooldown
+  ; Launch projectile at nearest zombie within range if cooldown is less than 0.
+  [ if (distance find-nearest-zombie <= projectile-range) and (cooldown-timer <= 0) and (projectiles-remaining > 0)
+    [ hatch-projectiles 1 ; Hatch inherits all properties of Human
+      [ projectile-init
+        face (find-nearest-zombie) ; Human choses where to shoot. For now, shoot nearest zombie.
+      ]
+      set cooldown-timer (projectile-cooldown)
+      set projectiles-remaining (projectiles-remaining - 1)
     ]
   ]
-  ; reduce cooldown
   set cooldown-timer (cooldown-timer - 1 / ticks-per-second)
+end
+
+to update-human-label
+  ifelse show-number-projectiles
+  [ set label projectiles-remaining ]
+  [ set label "" ]
 end
 
 ; **************************

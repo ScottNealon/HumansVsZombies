@@ -71,10 +71,10 @@ ticks
 60.0
 
 BUTTON
-27
-25
-90
-58
+28
+31
+91
+64
 NIL
 setup
 NIL
@@ -88,10 +88,10 @@ NIL
 1
 
 BUTTON
-109
-26
-172
-59
+110
+32
+173
+65
 NIL
 go
 T
@@ -105,10 +105,10 @@ NIL
 0
 
 SLIDER
-233
-76
-405
-109
+252
+84
+424
+117
 num-zombies
 num-zombies
 0
@@ -120,10 +120,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-233
-125
-405
-158
+252
+133
+424
+166
 num-sock-humans
 num-sock-humans
 0
@@ -135,10 +135,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-233
-214
-405
-247
+252
+222
+424
+255
 zombie-speed
 zombie-speed
 0
@@ -150,10 +150,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-233
-247
-405
-280
+252
+255
+424
+288
 human-speed
 human-speed
 0
@@ -165,10 +165,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-437
-74
-609
-107
+456
+82
+628
+115
 zombie-tag-range
 zombie-tag-range
 0
@@ -180,10 +180,10 @@ ft
 HORIZONTAL
 
 SLIDER
-437
-108
-617
-141
+456
+116
+636
+149
 zombie-hit-box-radius
 zombie-hit-box-radius
 0
@@ -195,10 +195,10 @@ ft
 HORIZONTAL
 
 SLIDER
-233
-378
-405
-411
+252
+386
+424
+419
 sock-range
 sock-range
 0
@@ -210,10 +210,10 @@ ft
 HORIZONTAL
 
 SLIDER
-233
-344
-405
-377
+252
+352
+424
+385
 sock-speed
 sock-speed
 0
@@ -225,10 +225,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-232
-413
-404
-446
+251
+421
+423
+454
 sock-cooldown
 sock-cooldown
 0
@@ -255,20 +255,20 @@ ticks/s
 HORIZONTAL
 
 CHOOSER
-438
-158
-578
-203
+457
+166
+597
+211
 human-move-style
 human-move-style
 "nearest" "zone-evasion"
 1
 
 SLIDER
-438
-204
-634
-237
+457
+212
+653
+245
 zone-evasion-radius
 zone-evasion-radius
 0
@@ -282,10 +282,10 @@ HORIZONTAL
 SLIDER
 19
 161
-211
+244
 194
-projectile-iter-per-tick
-projectile-iter-per-tick
+projectile-iterations-per-tick
+projectile-iterations-per-tick
 1
 50
 30.0
@@ -295,10 +295,10 @@ i/tick
 HORIZONTAL
 
 SLIDER
-233
-308
-405
-341
+252
+316
+424
+349
 starting-socks
 starting-socks
 0
@@ -331,10 +331,10 @@ show-number-projectiles
 -1000
 
 SLIDER
-232
-447
-422
-480
+251
+455
+441
+488
 sock-inaccuracy
 sock-inaccuracy
 0
@@ -398,10 +398,10 @@ PENS
 "Shots Hit" 1.0 0 -2674135 true "" "plot count zombies with [ is-live = False]"
 
 SLIDER
-233
-158
-405
-191
+252
+166
+424
+199
 num-blaster-humans
 num-blaster-humans
 0
@@ -413,10 +413,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-448
-308
-620
-341
+467
+316
+639
+349
 starting-darts
 starting-darts
 0
@@ -428,10 +428,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-448
-341
-620
-374
+467
+349
+639
+382
 dart-speed
 dart-speed
 0
@@ -443,10 +443,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-448
-374
-620
-407
+467
+382
+639
+415
 dart-range
 dart-range
 0
@@ -458,10 +458,10 @@ ft
 HORIZONTAL
 
 SLIDER
-448
-408
-620
-441
+467
+416
+639
+449
 dart-cooldown
 dart-cooldown
 0
@@ -473,10 +473,10 @@ s
 HORIZONTAL
 
 SLIDER
-448
-441
-626
-474
+467
+449
+645
+482
 dart-inaccuracy
 dart-inaccuracy
 0
