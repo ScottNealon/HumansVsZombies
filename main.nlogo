@@ -128,7 +128,7 @@ num-sock-humans
 num-sock-humans
 0
 25
-0.0
+25.0
 1
 1
 NIL
@@ -303,7 +303,7 @@ starting-socks
 starting-socks
 0
 100
-10.0
+30.0
 1
 1
 NIL
@@ -379,10 +379,10 @@ Dart Hit Rate
 11
 
 PLOT
-1194
-217
-1436
-367
+1454
+41
+1696
+191
 Shots Fired vs Shots Hit
 Ticks
 Count
@@ -406,7 +406,7 @@ num-blaster-humans
 num-blaster-humans
 0
 25
-25.0
+0.0
 1
 1
 NIL
@@ -421,7 +421,7 @@ starting-darts
 starting-darts
 0
 100
-30.0
+50.0
 1
 1
 NIL
@@ -554,10 +554,10 @@ Hit Rate
 11
 
 PLOT
-1464
-40
-1664
-190
+1203
+209
+1403
+359
 Zombies Remaining
 Count
 Ticks
@@ -572,10 +572,10 @@ PENS
 "default" 1.0 0 -2674135 true "" "plot count zombies with [ is-live ]"
 
 PLOT
-1465
-216
-1759
-366
+1412
+211
+1706
+361
 Humans Remaining
 Count
 Ticks
@@ -592,10 +592,10 @@ PENS
 "Blaster Humans" 1.0 0 -5825686 true "" "plot count humans with [ (is-live) and (projectile-type = \"blaster\") ]"
 
 MONITOR
-1335
-417
-1448
-462
+1318
+379
+1431
+424
 Humans Dead
 count humans with [ not is-live ]
 17
@@ -603,10 +603,10 @@ count humans with [ not is-live ]
 11
 
 MONITOR
-1335
-462
-1448
-507
+1318
+424
+1431
+469
 Sock Humans Dead
 count humans with [ (not is-live) and (projectile-type = \"sock\") ]
 17
@@ -614,10 +614,10 @@ count humans with [ (not is-live) and (projectile-type = \"sock\") ]
 11
 
 MONITOR
-1335
-507
-1448
-552
+1318
+469
+1431
+514
 Blaster Humans Dead
 count humans with [ (not is-live) and (projectile-type = \"blaster\") ]
 17
@@ -625,10 +625,10 @@ count humans with [ (not is-live) and (projectile-type = \"blaster\") ]
 11
 
 MONITOR
-1219
-417
-1335
-462
+1202
+379
+1318
+424
 Humans Alive
 count humans with [ is-live ]
 17
@@ -636,10 +636,10 @@ count humans with [ is-live ]
 11
 
 MONITOR
-1219
-462
-1335
-507
+1202
+424
+1318
+469
 Sock Humans Alive
 count humans with [ (is-live) and (projectile-type = \"sock\") ]
 17
@@ -647,10 +647,10 @@ count humans with [ (is-live) and (projectile-type = \"sock\") ]
 11
 
 MONITOR
-1219
-507
-1335
-552
+1202
+469
+1318
+514
 Blaster Humans Alive
 count humans with [ (is-live) and (projectile-type = \"blaster\") ]
 17
@@ -658,10 +658,10 @@ count humans with [ (is-live) and (projectile-type = \"blaster\") ]
 11
 
 MONITOR
-1448
-417
-1560
-462
+1431
+379
+1543
+424
 Fatailty Rate
 count humans with [ ( not is-live) ] / count humans
 3
@@ -669,10 +669,10 @@ count humans with [ ( not is-live) ] / count humans
 11
 
 MONITOR
-1448
-462
-1560
-507
+1431
+424
+1543
+469
 Sock Fataility Rate
 count humans with [ (not is-live) and (projectile-type = \"sock\") ] / count humans with [ (projectile-type = \"sock\") ]
 3
@@ -680,10 +680,10 @@ count humans with [ (not is-live) and (projectile-type = \"sock\") ] / count hum
 11
 
 MONITOR
-1448
-507
-1560
-552
+1431
+469
+1543
+514
 Blaster Fataility Rate
 count humans with [ (not is-live) and (projectile-type = \"blaster\") ] / count humans with [ projectile-type = \"blaster\" ]
 17

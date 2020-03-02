@@ -5,7 +5,7 @@
 ; This is a test
 
 breed [zombies zombie]
-zombies-own [is-live speed nearest-human]
+zombies-own [is-live run-speed nearest-human]
 
 to zombie-init
   set shape "person"
@@ -16,10 +16,10 @@ to zombie-init
     [setxy random-xcor random-ycor]
     ; Set all zombies to the top half of the field.
     (scenario = "Charge")
-    [setxy random-xcor random max-pxcor]
+    [setxy (random-xcor) (random (max-pxcor / 2) + max-pxcor / 2) ]
   )
-  set is-live true
-  set speed zombie-speed / ticks-per-second
+  set is-live (true)
+  set run-speed (zombie-speed / ticks-per-second)
 end
 
 ; **************************
@@ -36,7 +36,7 @@ to zombie-move
   if nearest-human != Nobody
   ; Face towards nearest human, then move
   [ face find-nearest-human 
-    fd speed ]
+    fd run-speed ]
 end
 
 to kill-human

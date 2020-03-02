@@ -13,7 +13,7 @@ to human-init
     [setxy random-xcor random-ycor]
     ; Set all humans to the bottom half of the field.
     (scenario = "Charge")
-    [setxy (random-xcor) (random min-pycor / 2)]
+    [setxy (random-xcor) (random (min-pycor) / 2)]
   )
   set is-live true
   set run-speed (human-speed / ticks-per-second)
