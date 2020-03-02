@@ -1,0 +1,51 @@
+; **************
+; *** SETUP  ***
+; **************
+
+breed [zombies zombie]
+zombies-own [is-live speed]
+
+to zombie-init
+  set shape "person"
+  set size 2
+  set color red
+  setxy random-xcor random-ycor 
+  set is-live true
+  set speed zombie-speed / ticks-per-second
+end
+
+; **************************
+; *** ACTION PROCEDURES  ***
+; **************************
+
+to zombie-ai
+  ; If there are no live humans, stop.
+  if not any? humans with [ is-live ] [ stop ]
+  zombie-move
+  kill-human
+end
+
+to zombie-move
+  ; Face towards nearest human, then move
+  face find-nearest-human 
+  fd speed
+end
+
+to kill-human
+  ; Kill nearest human if in range
+  if distance find-nearest-human <= zombie-tag-range 
+    [ ask find-nearest-human 
+      [ set is-live false
+        set color blue - 3 ]
+  ]
+  ; If the last human is dead, end simulation
+  if find-nearest-human = Nobody [ stop ]
+end
+
+; **************************
+; *** UTILITY PROCEDURES ***
+; **************************
+
+to-report find-nearest-zombie
+  report min-one-of zombies with [ is-live ] [distance myself]
+end
