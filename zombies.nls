@@ -5,7 +5,7 @@
 ; This is a test
 
 breed [zombies zombie]
-zombies-own [is-live run-speed nearest-human]
+zombies-own [is-live run-speed attack-style target]
 
 to zombie-init
   set shape "person"
@@ -20,6 +20,7 @@ to zombie-init
   )
   set is-live (true)
   set run-speed (zombie-speed / ticks-per-second)
+  set attack-style (zombie-attack-style)
 end
 
 ; **************************
@@ -32,19 +33,46 @@ to zombie-ai
 end
 
 to zombie-move
-  set nearest-human find-nearest-human
-  if nearest-human != Nobody
-  ; Face towards nearest human, then move
-  [ face find-nearest-human 
+  ; Select between movement modes
+  (ifelse 
+    (attack-style = "nearest-human")
+    [ zombie-move-nearest-human ]
+    (attack-style = "targeting-individual")
+    [ zombie-move-targeting-individual ]
+  )
+end
+
+to zombie-move-nearest-human
+  ; Find nearest human and run at them.
+  set target find-nearest-human
+  if target != Nobody
+  [ face target 
     fd run-speed ]
 end
 
+to zombie-move-targeting-individual
+  ; Everyone picks a single target and chases them
+  ( ifelse 
+    ; Initializes target
+    ( target = 0) [ pick-new-target-individual ]; If target is uninitialized
+    ; If target is dead, swap to nearest-human
+    ( not ([is-live] of target) ) [ set attack-style "nearest-human" ]
+  )
+  face target
+  fd run-speed
+end
+
+to pick-new-target-individual
+  set target one-of humans
+  ask zombies [ set target ([target] of myself) ]
+end
+
+
 to kill-human
-  set nearest-human find-nearest-human
-  if find-nearest-human != Nobody
-  ; Kill nearest human if in range
-  [ if distance nearest-human <= zombie-tag-range 
-    [ ask nearest-human 
+  ; Kill target if in range
+  if target != Nobody
+  [ if distance target <= zombie-tag-range 
+    [ ask target
       [ set is-live false
         set color blue - 3 ]
     ]
@@ -57,4 +85,9 @@ end
 
 to-report find-nearest-zombie
   report min-one-of zombies with [ is-live ] [distance myself]
+end
+
+to-report distance-from-line [x y h]
+  report 1
+  ; report sqrt(((xcor - x) - sin(h) * ((ycor - y) * cos(h) + (xcor - x) * sin(h) ) )^2 + ((ycor - y) - cos(h) * ((ycor - y) * cos(h) + (xcor - x) * sin(h)))^2)
 end

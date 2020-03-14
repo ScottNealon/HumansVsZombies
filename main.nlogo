@@ -113,7 +113,7 @@ num-zombies
 num-zombies
 0
 100
-100.0
+30.0
 1
 1
 NIL
@@ -128,7 +128,7 @@ num-sock-humans
 num-sock-humans
 0
 25
-25.0
+5.0
 1
 1
 NIL
@@ -188,7 +188,7 @@ zombie-hit-box-radius
 zombie-hit-box-radius
 0
 5
-1.0
+2.0
 0.1
 1
 ft
@@ -326,7 +326,7 @@ SWITCH
 227
 show-number-projectiles
 show-number-projectiles
-1
+0
 1
 -1000
 
@@ -406,7 +406,7 @@ num-blaster-humans
 num-blaster-humans
 0
 25
-0.0
+5.0
 1
 1
 NIL
@@ -466,7 +466,7 @@ dart-cooldown
 dart-cooldown
 0
 5
-0.6
+0.5
 0.1
 1
 s
@@ -689,6 +689,46 @@ count humans with [ (not is-live) and (projectile-type = \"blaster\") ] / count 
 17
 1
 11
+
+SLIDER
+231
+479
+403
+512
+sock-jam-rate
+sock-jam-rate
+0
+100
+0.0
+1
+1
+%
+HORIZONTAL
+
+SLIDER
+448
+474
+620
+507
+dart-jam-rate
+dart-jam-rate
+0
+100
+5.0
+1
+1
+%
+HORIZONTAL
+
+CHOOSER
+26
+269
+181
+314
+zombie-attack-style
+zombie-attack-style
+"nearest-human" "targeting-individual"
+1
 
 @#$#@#$#@
 ## WHAT IS IT?

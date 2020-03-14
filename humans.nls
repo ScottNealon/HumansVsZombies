@@ -3,7 +3,7 @@
 ; **************
 
 breed [humans human]
-humans-own [ is-live run-speed projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining projectile-cooldown cooldown-timer nearest-zombie zone-zombies ]
+humans-own [ is-live run-speed projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining projectile-cooldown cooldown-timer jam-rate nearest-zombie zone-zombies ]
 
 to human-init
   set shape "person"
@@ -28,6 +28,7 @@ to sock-human-init
   set projectile-inaccuracy (sock-inaccuracy)
   set projectiles-remaining (starting-socks)
   set projectile-cooldown (sock-cooldown)
+  set jam-rate (sock-jam-rate) / 100
   ifelse show-number-projectiles
   [ set label projectiles-remaining ]
   [ set label "" ]
@@ -41,6 +42,7 @@ to blaster-human-init
   set projectile-inaccuracy (dart-inaccuracy)
   set projectiles-remaining (starting-darts)
   set projectile-cooldown (dart-cooldown)
+  set jam-rate (dart-jam-rate) / 100
   ifelse show-number-projectiles
   [ set label projectiles-remaining ]
   [ set label "" ]
@@ -57,24 +59,31 @@ to human-ai
 end
 
 to human-move
+  ; Select between movement modes
   (ifelse 
-    ; Move away from the nearest zombie  
     (human-move-style = "nearest")
-    [ set nearest-zombie find-nearest-zombie
-      if nearest-zombie != Nobody 
-      [ face find-nearest-zombie
-        rt 180
-        fd run-speed ]
-    ]
-    ; Move away from the center-of-mass of nearby zombies.
+    [ human-move-nearest ]
     (human-move-style = "zone-evasion")
-    [ set zone-zombies zombies in-radius zone-evasion-radius with [ is-live ]
-      if any? zone-zombies 
-      [ facexy (sum ([xcor] of zone-zombies) / count (zone-zombies)) (sum ([ycor] of zone-zombies) / count (zone-zombies))
-        rt 180
-        fd run-speed ]
-    ]
+    [ human-move-zone-evasion ]
   )
+end
+
+to human-move-nearest
+  ; Move directly away from nearest zombie
+  set nearest-zombie find-nearest-zombie
+  if nearest-zombie != Nobody 
+  [ face find-nearest-zombie
+    rt 180
+    fd run-speed ]
+end
+
+to human-move-zone-evasion
+  ; Move away from the center-of-mass of nearby zombies.
+  set zone-zombies zombies in-radius zone-evasion-radius with [ is-live ]
+  if any? zone-zombies 
+  [ facexy (sum ([xcor] of zone-zombies) / count (zone-zombies)) (sum ([ycor] of zone-zombies) / count (zone-zombies))
+    rt 180
+    fd run-speed ]
 end
 
 to launch-projectile
@@ -82,7 +91,12 @@ to launch-projectile
   if find-nearest-zombie != nobody
   ; Launch projectile at nearest zombie within range if cooldown is less than 0.
   [ if (distance find-nearest-zombie <= projectile-range) and (cooldown-timer <= 0) and (projectiles-remaining > 0)
-    [ hatch-projectiles 1 ; Hatch inherits all properties of Human
+    ; Check for jam
+    [ if ((random-float (1.00)) <= jam-rate)
+      [ set projectiles-remaining (0)
+        stop ]
+      ; "Hatch projectile", inheriting all properties of Human
+      hatch-projectiles 1
       [ projectile-init
         face (find-nearest-zombie) ; Human choses where to shoot. For now, shoot nearest zombie.
       ]
