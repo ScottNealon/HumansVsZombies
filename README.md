@@ -1,5 +1,5 @@
-# HumansVsZombies
-Agent-based modeling of Humans vs Zombies game using NetLogo
+# Humans Vs Zombies: An Agent-based Model
+An agent-based modeling simulation of Humans vs Zombies game 
 
 ## Getting Started
 Download NetLogo from https://ccl.northwestern.edu/netlogo/download.shtml
