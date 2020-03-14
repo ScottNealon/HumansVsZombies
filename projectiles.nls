@@ -3,7 +3,7 @@
 ; **************
 
 breed [projectiles projectile]
-projectiles-own [ is-live hit projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining traveled nearest-zombie]
+projectiles-own [ is-live hit projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining traveled nearest-zombie in-line-zombie]
 
 to projectile-init
   set shape "circle"
@@ -21,40 +21,55 @@ end
 ; **************************
 
 to projectile-ai
-  repeat projectile-iter-per-tick
-  [ if is-live
-    [ projectile-move
-      check-range
-      stun-zombies ]
-  ]
+  
+  ; Check for zombies immediatly around projectile and stun.
+  set nearest-zombie min-one-of zombies with [ (distance myself <= zombie-hit-box-radius) and (is-live) ] [ distance myself ]
+  if nearest-zombie != Nobody
+  [ stun-zombie (nearest-zombie)
+    stop ]
+    
+  ; Finds closest zombie that is 1) infront of and within hitting distance, and 2) within hitbox distance of the straight line. 
+  ; If one exits, stun it. If not, move forward.
+  set nearest-zombie min-one-of zombies in-cone projectile-speed 180 with [ (distance-from-line xcor ycor heading <= zombie-hit-box-radius) and (is-live) ] [distance myself]
+  if nearest-zombie != Nobody
+  [ stun-zombie nearest-zombie
+    fd distance nearest-zombie ; Not 100% accurate, but close enough as the implement then dies
+    stop ] 
+  
+  ; If you reach this point, move forward.
+  fd projectile-speed
+  
+  ; Check for zombies immediatly around projectile and stun, again.
+  set nearest-zombie min-one-of zombies with [ (distance myself <= zombie-hit-box-radius) and (is-live) ] [ distance myself ]
+  if nearest-zombie != Nobody
+  [ stun-zombie nearest-zombie
+    stop ]
+  
+  ; Check if the implement should still be live
+  check-distance-traveled
+  
 end
 
-to projectile-move
-  fd projectile-speed / projectile-iter-per-tick
+to stun-zombie [target-zombie]
+  
+  ask target-zombie
+  [ set is-live false
+    set color (red - 3) ]
+  set hit (true)
+  set is-live (false)
+  set color (yellow - 3)
+  
+  
 end
 
-to check-range 
+
+to check-distance-traveled
   ; increment distance travelede
   set traveled (traveled + projectile-speed / projectile-iter-per-tick)
   ; set dead if did not travel far enough
   if traveled >= projectile-range
   [ set is-live false 
     set color (yellow - 3)]
-end
-
-to stun-zombies 
-  ; if within zombie hit-box range, zombie and sock are both dead
-  set nearest-zombie find-nearest-zombie
-  if nearest-zombie != Nobody 
-  [ if distance nearest-zombie <= zombie-hit-box-radius
-    [ ask nearest-zombie 
-      [ set is-live false
-        set color (red - 3)]
-      set hit (true)
-      set is-live (false)
-      set color (yellow - 3)
-    ]
-  ]
 end
 
 ; **************************
