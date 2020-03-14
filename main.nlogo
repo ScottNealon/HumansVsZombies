@@ -325,13 +325,13 @@ end
 
 @#$#@#$#@
 GRAPHICS-WINDOW
-664
-33
-1177
-547
+449
+31
+1064
+647
 -1
 -1
-5.06
+6.01
 1
 12
 1
@@ -352,10 +352,10 @@ ticks
 60.0
 
 BUTTON
-27
-25
-90
-58
+165
+26
+275
+59
 NIL
 setup
 NIL
@@ -369,10 +369,10 @@ NIL
 1
 
 BUTTON
-109
-26
-172
-59
+295
+25
+406
+58
 NIL
 go
 T
@@ -386,10 +386,10 @@ NIL
 0
 
 SLIDER
-230
-161
-402
-194
+241
+98
+413
+131
 num-zombies
 num-zombies
 0
@@ -401,10 +401,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-230
-210
-402
-243
+241
+147
+413
+180
 num-sock-humans
 num-sock-humans
 0
@@ -416,10 +416,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-251
-426
-423
-459
+242
+265
+414
+298
 zombie-speed
 zombie-speed
 0
@@ -431,10 +431,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-251
-459
-423
-492
+242
+298
+414
+331
 human-speed
 human-speed
 0
@@ -446,10 +446,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-433
-425
-605
-458
+242
+331
+414
+364
 zombie-tag-range
 zombie-tag-range
 0
@@ -461,10 +461,10 @@ ft
 HORIZONTAL
 
 SLIDER
-433
-459
-613
-492
+242
+365
+422
+398
 zombie-hit-box-radius
 zombie-hit-box-radius
 0
@@ -476,10 +476,10 @@ ft
 HORIZONTAL
 
 SLIDER
-260
-673
-432
-706
+30
+516
+202
+549
 sock-range
 sock-range
 0
@@ -491,10 +491,10 @@ ft
 HORIZONTAL
 
 SLIDER
-260
-639
-432
-672
+30
+482
+202
+515
 sock-speed
 sock-speed
 0
@@ -506,10 +506,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-259
-708
-431
-741
+29
+551
+201
+584
 sock-cooldown
 sock-cooldown
 0
@@ -521,10 +521,10 @@ s
 HORIZONTAL
 
 SLIDER
-19
-125
-198
-158
+26
+93
+205
+126
 ticks-per-second
 ticks-per-second
 1
@@ -536,20 +536,20 @@ ticks/s
 HORIZONTAL
 
 CHOOSER
-22
-389
-162
-434
+29
+321
+169
+366
 human-move-style
 human-move-style
 "nearest" "zone-evasion"
 1
 
 SLIDER
-22
-434
-218
-467
+29
+366
+225
+399
 zone-evasion-radius
 zone-evasion-radius
 0
@@ -561,10 +561,10 @@ ft
 HORIZONTAL
 
 SLIDER
-260
-603
-432
-636
+30
+446
+202
+479
 starting-socks
 starting-socks
 0
@@ -576,20 +576,20 @@ NIL
 HORIZONTAL
 
 CHOOSER
-19
-260
-177
-305
+26
+192
+184
+237
 scenario
 scenario
 "Random distribution" "Charge"
 1
 
 SWITCH
-19
-194
-211
-227
+26
+126
+218
+159
 show-number-projectiles
 show-number-projectiles
 0
@@ -597,10 +597,10 @@ show-number-projectiles
 -1000
 
 SLIDER
-259
-742
-449
-775
+29
+585
+219
+618
 sock-inaccuracy
 sock-inaccuracy
 0
@@ -612,10 +612,10 @@ degrees
 HORIZONTAL
 
 MONITOR
-1201
-44
-1276
-89
+1096
+39
+1171
+84
 Shots Fired
 count projectiles
 17
@@ -623,10 +623,10 @@ count projectiles
 11
 
 MONITOR
-1201
-89
-1276
-134
+1096
+84
+1171
+129
 Shots Hit
 count projectiles with [ hit ]
 17
@@ -634,10 +634,10 @@ count projectiles with [ hit ]
 11
 
 MONITOR
-1351
-134
-1425
-179
+1246
+129
+1320
+174
 Dart Hit Rate
 (count projectiles with [ (hit) and (projectile-type = \"blaster\") ]) / count projectiles with [ projectile-type = \"blaster\" ]
 3
@@ -645,10 +645,10 @@ Dart Hit Rate
 11
 
 PLOT
-1203
-190
-1445
-438
+1098
+185
+1340
+433
 Shots Fired vs Shots Hit
 Ticks
 Count
@@ -664,10 +664,10 @@ PENS
 "Shots Hit" 1.0 0 -2674135 true "" "plot count zombies with [ is-live = False]"
 
 SLIDER
-230
-243
-402
-276
+241
+180
+413
+213
 num-blaster-humans
 num-blaster-humans
 0
@@ -679,10 +679,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-475
-603
-647
-636
+245
+446
+417
+479
 starting-darts
 starting-darts
 0
@@ -694,10 +694,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-475
-636
-647
-669
+245
+479
+417
+512
 dart-speed
 dart-speed
 0
@@ -709,10 +709,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-475
-669
-647
-702
+245
+512
+417
+545
 dart-range
 dart-range
 0
@@ -724,10 +724,10 @@ ft
 HORIZONTAL
 
 SLIDER
-475
-703
-647
-736
+245
+546
+417
+579
 dart-cooldown
 dart-cooldown
 0
@@ -739,10 +739,10 @@ s
 HORIZONTAL
 
 SLIDER
-475
-736
-653
-769
+245
+579
+423
+612
 dart-inaccuracy
 dart-inaccuracy
 0
@@ -754,10 +754,10 @@ degrees
 HORIZONTAL
 
 MONITOR
-1349
-44
-1423
-89
+1244
+39
+1318
+84
 Darts Fired
 count projectiles with [ projectile-type = \"blaster\" ]
 17
@@ -765,10 +765,10 @@ count projectiles with [ projectile-type = \"blaster\" ]
 11
 
 MONITOR
-1274
-44
-1349
-89
+1169
+39
+1244
+84
 Socks Fired
 count projectiles with [ projectile-type = \"sock\" ]
 17
@@ -776,10 +776,10 @@ count projectiles with [ projectile-type = \"sock\" ]
 11
 
 MONITOR
-1350
-89
-1423
-134
+1245
+84
+1318
+129
 Darts Hit
 count projectiles with [ (hit) and (projectile-type = \"blaster\") ]
 17
@@ -787,10 +787,10 @@ count projectiles with [ (hit) and (projectile-type = \"blaster\") ]
 11
 
 MONITOR
-1275
-89
-1350
-134
+1170
+84
+1245
+129
 Socks Hit
 count projectiles with [ (hit) and ( projectile-type = \"sock\" ) ]
 17
@@ -798,10 +798,10 @@ count projectiles with [ (hit) and ( projectile-type = \"sock\" ) ]
 11
 
 MONITOR
-1275
-134
-1351
-179
+1170
+129
+1246
+174
 Sock Hit Rate
 (count projectiles with [ (hit) and (projectile-type = \"sock\") ]) / count projectiles with [ projectile-type = \"sock\" ]
 3
@@ -809,10 +809,10 @@ Sock Hit Rate
 11
 
 MONITOR
-1201
-134
-1275
-179
+1096
+129
+1170
+174
 Hit Rate
 (count projectiles with [ hit ]) / count projectiles
 3
@@ -820,10 +820,10 @@ Hit Rate
 11
 
 PLOT
-1470
-194
-1670
-439
+1365
+189
+1565
+434
 Zombies Remaining
 Count
 Ticks
@@ -838,10 +838,10 @@ PENS
 "default" 1.0 0 -2674135 true "" "plot count zombies with [ is-live ]"
 
 PLOT
-1683
-196
-1977
-442
+1578
+191
+1872
+437
 Humans Remaining
 Count
 Ticks
@@ -858,10 +858,10 @@ PENS
 "Blaster Humans" 1.0 0 -5825686 true "" "plot count humans with [ (is-live) and (projectile-type = \"blaster\") ]"
 
 MONITOR
-1581
-46
-1694
-91
+1476
+41
+1589
+86
 Humans Dead
 count humans with [ not is-live ]
 17
@@ -869,10 +869,10 @@ count humans with [ not is-live ]
 11
 
 MONITOR
-1581
-91
-1694
-136
+1476
+86
+1589
+131
 Sock Humans Dead
 count humans with [ (not is-live) and (projectile-type = \"sock\") ]
 17
@@ -880,10 +880,10 @@ count humans with [ (not is-live) and (projectile-type = \"sock\") ]
 11
 
 MONITOR
-1581
-136
-1694
-181
+1476
+131
+1589
+176
 Blaster Humans Dead
 count humans with [ (not is-live) and (projectile-type = \"blaster\") ]
 17
@@ -891,10 +891,10 @@ count humans with [ (not is-live) and (projectile-type = \"blaster\") ]
 11
 
 MONITOR
-1465
-46
-1581
-91
+1360
+41
+1476
+86
 Humans Alive
 count humans with [ is-live ]
 17
@@ -902,10 +902,10 @@ count humans with [ is-live ]
 11
 
 MONITOR
-1465
-91
-1581
-136
+1360
+86
+1476
+131
 Sock Humans Alive
 count humans with [ (is-live) and (projectile-type = \"sock\") ]
 17
@@ -913,10 +913,10 @@ count humans with [ (is-live) and (projectile-type = \"sock\") ]
 11
 
 MONITOR
-1465
-136
-1581
-181
+1360
+131
+1476
+176
 Blaster Humans Alive
 count humans with [ (is-live) and (projectile-type = \"blaster\") ]
 17
@@ -924,10 +924,10 @@ count humans with [ (is-live) and (projectile-type = \"blaster\") ]
 11
 
 MONITOR
-1694
-46
-1806
-91
+1589
+41
+1701
+86
 Fatailty Rate
 count humans with [ ( not is-live) ] / count humans
 3
@@ -935,10 +935,10 @@ count humans with [ ( not is-live) ] / count humans
 11
 
 MONITOR
-1694
-91
-1806
-136
+1589
+86
+1701
+131
 Sock Fataility Rate
 count humans with [ (not is-live) and (projectile-type = \"sock\") ] / count humans with [ (projectile-type = \"sock\") ]
 3
@@ -946,10 +946,10 @@ count humans with [ (not is-live) and (projectile-type = \"sock\") ] / count hum
 11
 
 MONITOR
-1694
-136
-1806
-181
+1589
+131
+1701
+176
 Blaster Fataility Rate
 count humans with [ (not is-live) and (projectile-type = \"blaster\") ] / count humans with [ projectile-type = \"blaster\" ]
 17
@@ -957,10 +957,10 @@ count humans with [ (not is-live) and (projectile-type = \"blaster\") ] / count 
 11
 
 SLIDER
-258
-774
-430
-807
+28
+617
+200
+650
 sock-jam-rate
 sock-jam-rate
 0
@@ -972,10 +972,10 @@ sock-jam-rate
 HORIZONTAL
 
 SLIDER
-475
-769
-647
-802
+245
+612
+417
+645
 dart-jam-rate
 dart-jam-rate
 0
@@ -987,53 +987,100 @@ dart-jam-rate
 HORIZONTAL
 
 CHOOSER
-22
-343
-177
-388
+29
+275
+184
+320
 zombie-attack-style
 zombie-attack-style
 "nearest-human" "targeting-individual"
 1
 
 TEXTBOX
-21
-100
-231
-122
+28
+68
+238
+90
 Simulation Settings
 18
 0.0
 1
 
 TEXTBOX
-20
-236
-170
-258
+27
+168
+177
+190
 Scenario Settings
 18
 0.0
 1
 
 TEXTBOX
-23
-318
-173
-342
+30
+250
+180
+274
 AI Settings
 18
 0.0
 1
 
 TEXTBOX
-231
-133
-429
-156
+242
+70
+440
+93
 Faction Count Settings
 18
 0.0
+1
+
+TEXTBOX
+242
+242
+427
+266
+Player Abillity Settings
+18
+0.0
+1
+
+TEXTBOX
+33
+420
+183
+442
+Sock Settings
+18
+0.0
+1
+
+TEXTBOX
+245
+419
+395
+441
+Blaster Settings
+18
+0.0
+1
+
+BUTTON
+33
+26
+142
+59
+NIL
+reset
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
 1
 
 @#$#@#$#@
