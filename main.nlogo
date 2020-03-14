@@ -14,6 +14,10 @@ projectiles-own [ is-live hit projectile-type projectile-range projectile-speed 
 ; SETUP PROCEDURES
 ; ################
 
+to reset
+  ; TODO: Set all value to default
+end
+
 ; General Setup
 to setup
   clear-all
