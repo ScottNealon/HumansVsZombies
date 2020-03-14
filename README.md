@@ -1,12 +1,12 @@
 # Humans Vs Zombies: An Agent-based Model
-An agent-based modeling simulation of Humans vs Zombies game 
+This GitHub contains the files for an agent-based modeling simulation of the popular campus game Humans vs Zombies.
 
-## Getting Started
-Download NetLogo from https://ccl.northwestern.edu/netlogo/download.shtml
 
-Open main.nlogo in NetLogo
+## Running the Simulation
+The simulation can be run in one of two formats: web-hosted and locally.
 
-## To Run
-Press setup to initialize simulation.
+The web-hosted format is run from [Netlogoweb.org](https://netlogoweb.org). By pointing it towards this repository, the current model can be run. You can access this by following the following link: [Humans vs Zombies Web-hosted Simulation](http://netlogoweb.org/web?https://raw.githubusercontent.com/ScottNealon/HumansVsZombies/master/main.nlogo)
 
-Press go to run simulation.
+To run the simulation locally, start by [downloading the NetLogo application](https://ccl.northwestern.edu/netlogo/download.shtml). Then, download [main.nlogo](https://github.com/ScottNealon/HumansVsZombies/blob/master/main.nlogo) from this repository. The simulation can be run and edited by opening main.nlogo in the NetLogo application.
+
+## Simulation Tutorial
