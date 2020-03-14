@@ -299,7 +299,7 @@ end
 
 to check-distance-traveled
   ; increment distance travelede
-  set traveled (traveled + projectile-speed / projectile-iter-per-tick)
+  set traveled (traveled + projectile-speed)
   ; set dead if did not travel far enough
   if traveled >= projectile-range
   [ set is-live false
@@ -323,7 +323,6 @@ to-report distance-from-line [x y h]
   ; report sqrt(((xcor - x) - sin(h) * ((ycor - y) * cos(h) + (xcor - x) * sin(h) ) )^2 + ((ycor - y) - cos(h) * ((ycor - y) * cos(h) + (xcor - x) * sin(h)))^2)
 end
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 664
@@ -332,7 +331,7 @@ GRAPHICS-WINDOW
 547
 -1
 -1
-5.0
+5.06
 1
 12
 1
@@ -387,10 +386,10 @@ NIL
 0
 
 SLIDER
-233
-76
-405
-109
+230
+161
+402
+194
 num-zombies
 num-zombies
 0
@@ -402,10 +401,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-233
-125
-405
-158
+230
+210
+402
+243
 num-sock-humans
 num-sock-humans
 0
@@ -417,10 +416,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-233
-214
-405
-247
+251
+426
+423
+459
 zombie-speed
 zombie-speed
 0
@@ -432,10 +431,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-233
-247
-405
-280
+251
+459
+423
+492
 human-speed
 human-speed
 0
@@ -447,10 +446,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-437
-74
-609
-107
+433
+425
+605
+458
 zombie-tag-range
 zombie-tag-range
 0
@@ -462,10 +461,10 @@ ft
 HORIZONTAL
 
 SLIDER
-437
-108
-617
-141
+433
+459
+613
+492
 zombie-hit-box-radius
 zombie-hit-box-radius
 0
@@ -477,10 +476,10 @@ ft
 HORIZONTAL
 
 SLIDER
-233
-378
-405
-411
+260
+673
+432
+706
 sock-range
 sock-range
 0
@@ -492,10 +491,10 @@ ft
 HORIZONTAL
 
 SLIDER
-233
-344
-405
-377
+260
+639
+432
+672
 sock-speed
 sock-speed
 0
@@ -507,10 +506,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-232
-413
-404
-446
+259
+708
+431
+741
 sock-cooldown
 sock-cooldown
 0
@@ -537,20 +536,20 @@ ticks/s
 HORIZONTAL
 
 CHOOSER
-438
-158
-578
-203
+22
+389
+162
+434
 human-move-style
 human-move-style
 "nearest" "zone-evasion"
 1
 
 SLIDER
-438
-204
-634
-237
+22
+434
+218
+467
 zone-evasion-radius
 zone-evasion-radius
 0
@@ -562,25 +561,10 @@ ft
 HORIZONTAL
 
 SLIDER
-19
-161
-211
-194
-projectile-iter-per-tick
-projectile-iter-per-tick
-1
-50
-30.0
-1
-1
-i/tick
-HORIZONTAL
-
-SLIDER
-233
-308
-405
-341
+260
+603
+432
+636
 starting-socks
 starting-socks
 0
@@ -593,9 +577,9 @@ HORIZONTAL
 
 CHOOSER
 19
-78
+260
 177
-123
+305
 scenario
 scenario
 "Random distribution" "Charge"
@@ -613,10 +597,10 @@ show-number-projectiles
 -1000
 
 SLIDER
-232
-447
-422
-480
+259
+742
+449
+775
 sock-inaccuracy
 sock-inaccuracy
 0
@@ -661,10 +645,10 @@ Dart Hit Rate
 11
 
 PLOT
-1454
-41
-1696
-191
+1203
+190
+1445
+438
 Shots Fired vs Shots Hit
 Ticks
 Count
@@ -680,10 +664,10 @@ PENS
 "Shots Hit" 1.0 0 -2674135 true "" "plot count zombies with [ is-live = False]"
 
 SLIDER
-233
-158
-405
-191
+230
+243
+402
+276
 num-blaster-humans
 num-blaster-humans
 0
@@ -695,10 +679,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-448
-308
-620
-341
+475
+603
+647
+636
 starting-darts
 starting-darts
 0
@@ -710,10 +694,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-448
-341
-620
-374
+475
+636
+647
+669
 dart-speed
 dart-speed
 0
@@ -725,10 +709,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-448
-374
-620
-407
+475
+669
+647
+702
 dart-range
 dart-range
 0
@@ -740,10 +724,10 @@ ft
 HORIZONTAL
 
 SLIDER
-448
-408
-620
-441
+475
+703
+647
+736
 dart-cooldown
 dart-cooldown
 0
@@ -755,10 +739,10 @@ s
 HORIZONTAL
 
 SLIDER
-448
-441
-626
-474
+475
+736
+653
+769
 dart-inaccuracy
 dart-inaccuracy
 0
@@ -836,10 +820,10 @@ Hit Rate
 11
 
 PLOT
-1203
-209
-1403
-359
+1470
+194
+1670
+439
 Zombies Remaining
 Count
 Ticks
@@ -854,10 +838,10 @@ PENS
 "default" 1.0 0 -2674135 true "" "plot count zombies with [ is-live ]"
 
 PLOT
-1412
-211
-1706
-361
+1683
+196
+1977
+442
 Humans Remaining
 Count
 Ticks
@@ -874,10 +858,10 @@ PENS
 "Blaster Humans" 1.0 0 -5825686 true "" "plot count humans with [ (is-live) and (projectile-type = \"blaster\") ]"
 
 MONITOR
-1318
-379
-1431
-424
+1581
+46
+1694
+91
 Humans Dead
 count humans with [ not is-live ]
 17
@@ -885,10 +869,10 @@ count humans with [ not is-live ]
 11
 
 MONITOR
-1318
-424
-1431
-469
+1581
+91
+1694
+136
 Sock Humans Dead
 count humans with [ (not is-live) and (projectile-type = \"sock\") ]
 17
@@ -896,10 +880,10 @@ count humans with [ (not is-live) and (projectile-type = \"sock\") ]
 11
 
 MONITOR
-1318
-469
-1431
-514
+1581
+136
+1694
+181
 Blaster Humans Dead
 count humans with [ (not is-live) and (projectile-type = \"blaster\") ]
 17
@@ -907,10 +891,10 @@ count humans with [ (not is-live) and (projectile-type = \"blaster\") ]
 11
 
 MONITOR
-1202
-379
-1318
-424
+1465
+46
+1581
+91
 Humans Alive
 count humans with [ is-live ]
 17
@@ -918,10 +902,10 @@ count humans with [ is-live ]
 11
 
 MONITOR
-1202
-424
-1318
-469
+1465
+91
+1581
+136
 Sock Humans Alive
 count humans with [ (is-live) and (projectile-type = \"sock\") ]
 17
@@ -929,10 +913,10 @@ count humans with [ (is-live) and (projectile-type = \"sock\") ]
 11
 
 MONITOR
-1202
-469
-1318
-514
+1465
+136
+1581
+181
 Blaster Humans Alive
 count humans with [ (is-live) and (projectile-type = \"blaster\") ]
 17
@@ -940,10 +924,10 @@ count humans with [ (is-live) and (projectile-type = \"blaster\") ]
 11
 
 MONITOR
-1431
-379
-1543
-424
+1694
+46
+1806
+91
 Fatailty Rate
 count humans with [ ( not is-live) ] / count humans
 3
@@ -951,10 +935,10 @@ count humans with [ ( not is-live) ] / count humans
 11
 
 MONITOR
-1431
-424
-1543
-469
+1694
+91
+1806
+136
 Sock Fataility Rate
 count humans with [ (not is-live) and (projectile-type = \"sock\") ] / count humans with [ (projectile-type = \"sock\") ]
 3
@@ -962,10 +946,10 @@ count humans with [ (not is-live) and (projectile-type = \"sock\") ] / count hum
 11
 
 MONITOR
-1431
-469
-1543
-514
+1694
+136
+1806
+181
 Blaster Fataility Rate
 count humans with [ (not is-live) and (projectile-type = \"blaster\") ] / count humans with [ projectile-type = \"blaster\" ]
 17
@@ -973,10 +957,10 @@ count humans with [ (not is-live) and (projectile-type = \"blaster\") ] / count 
 11
 
 SLIDER
-231
-479
-403
-512
+258
+774
+430
+807
 sock-jam-rate
 sock-jam-rate
 0
@@ -988,10 +972,10 @@ sock-jam-rate
 HORIZONTAL
 
 SLIDER
-448
-474
-620
-507
+475
+769
+647
+802
 dart-jam-rate
 dart-jam-rate
 0
@@ -1003,13 +987,53 @@ dart-jam-rate
 HORIZONTAL
 
 CHOOSER
-26
-269
-181
-314
+22
+343
+177
+388
 zombie-attack-style
 zombie-attack-style
 "nearest-human" "targeting-individual"
+1
+
+TEXTBOX
+21
+100
+231
+122
+Simulation Settings
+18
+0.0
+1
+
+TEXTBOX
+20
+236
+170
+258
+Scenario Settings
+18
+0.0
+1
+
+TEXTBOX
+23
+318
+173
+342
+AI Settings
+18
+0.0
+1
+
+TEXTBOX
+231
+133
+429
+156
+Faction Count Settings
+18
+0.0
 1
 
 @#$#@#$#@
