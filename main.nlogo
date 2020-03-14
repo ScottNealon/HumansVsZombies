@@ -1,33 +1,118 @@
-__includes [ "humans.nls" "zombies.nls" "projectiles.nls"]
+; #################
+; BREED DEFINITIONS
+; #################
 
-; ******************
-; Setup Procedures
-; ******************
+breed [zombies zombie]
+breed [humans human]
+breed [projectiles projectile]
 
+zombies-own [is-live run-speed attack-style target]
+humans-own [ is-live run-speed projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining projectile-cooldown cooldown-timer jam-rate nearest-zombie zone-zombies ]
+projectiles-own [ is-live hit projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining traveled nearest-zombie in-line-zombie]
+
+; ################
+; SETUP PROCEDURES
+; ################
+
+; General Setup
 to setup
   clear-all
   setup-patches
-  setup-humans
   setup-zombies
+  setup-humans
   reset-ticks
 end
 
+; Patches Setup
 to setup-patches
   ask patches [ set pcolor green ]
 end
 
+; Zombie setup
+to setup-zombies
+  create-zombies num-zombies [ zombie-init ]
+end
+
+to zombie-init
+  set shape "person"
+  set size 6 ; 6 feet tall
+  set color red
+    (ifelse
+    (scenario = "Random distribution")
+    [setxy random-xcor random-ycor]
+    ; Set all zombies to the top half of the field.
+    (scenario = "Charge")
+    [setxy (random-xcor) (random (max-pxcor / 2) + max-pxcor / 2) ]
+  )
+  set is-live (true)
+  set run-speed (zombie-speed / ticks-per-second)
+  set attack-style (zombie-attack-style)
+end
+
+; Human Setup
 to setup-humans
   create-humans num-sock-humans    [ human-init sock-human-init ]
   create-humans num-blaster-humans [ human-init blaster-human-init ]
 end
 
-to setup-zombies
-  create-zombies num-zombies [ zombie-init ]
+to human-init
+  set shape "person"
+  set size 6 ; 6 feet tall
+  (ifelse
+    (scenario = "Random distribution")
+    [setxy random-xcor random-ycor]
+    ; Set all humans to the bottom half of the field.
+    (scenario = "Charge")
+    [setxy (random-xcor) (random (min-pycor) / 2)]
+  )
+  set is-live true
+  set run-speed (human-speed / ticks-per-second)
+  set cooldown-timer 0
 end
 
-; ******************
-; Run Procedures
-; ******************
+to sock-human-init
+  set projectile-type "sock"
+  set color blue + 1
+  set projectile-range (sock-range)
+  set projectile-speed (sock-speed / ticks-per-second)
+  set projectile-inaccuracy (sock-inaccuracy)
+  set projectiles-remaining (starting-socks)
+  set projectile-cooldown (sock-cooldown)
+  set jam-rate (sock-jam-rate) / 100
+  ifelse show-number-projectiles
+  [ set label projectiles-remaining ]
+  [ set label "" ]
+end
+
+to blaster-human-init
+  set projectile-type "blaster"
+  set color blue
+  set projectile-range (dart-range)
+  set projectile-speed (dart-speed / ticks-per-second)
+  set projectile-inaccuracy (dart-inaccuracy)
+  set projectiles-remaining (starting-darts)
+  set projectile-cooldown (dart-cooldown)
+  set jam-rate (dart-jam-rate) / 100
+  ifelse show-number-projectiles
+  [ set label projectiles-remaining ]
+  [ set label "" ]
+end
+
+; Projectile Setup
+to projectile-init
+  set shape "circle"
+  set size 1
+  set color yellow
+  set is-live true
+  set hit (false)
+  set traveled 0
+  rt ((random projectile-inaccuracy) - projectile-inaccuracy / 2) ; Randomly turn +/-(inacccuracy/2)
+  set label ""
+end
+
+; ##############
+; RUN PROCEDURES
+; ##############
 
 to go
   ; If there are no live humans or live zombies, stop
@@ -35,13 +120,210 @@ to go
 
 
   ; follow procedure for each turtle type
+  ask zombies with [ is-live = true ] [ zombie-ai]
   ask humans with [ is-live = true ] [ human-ai ]
   ask projectiles with [ is-live = true ] [ projectile-ai ]
-  ask zombies with [ is-live = true ] [ zombie-ai]
+
 
   ; iterate
   tick
 end
+
+; ################
+; ZOMBIE PROCEDURES
+; ################
+
+to zombie-ai
+  zombie-move
+  kill-human
+end
+
+to zombie-move
+  ; Select between movement modes
+  (ifelse
+    (attack-style = "nearest-human")
+    [ zombie-move-nearest-human ]
+    (attack-style = "targeting-individual")
+    [ zombie-move-targeting-individual ]
+  )
+end
+
+to zombie-move-nearest-human
+  ; Find nearest human and run at them.
+  set target find-nearest-human
+  if target != Nobody
+  [ face target
+    fd run-speed ]
+end
+
+to zombie-move-targeting-individual
+  ; Everyone picks a single target and chases them
+  ( ifelse
+    ; Initializes target
+    ( target = 0) [ pick-new-target-individual ]; If target is uninitialized
+    ; If target is dead, swap to nearest-human
+    ( not ([is-live] of target) ) [ set attack-style "nearest-human" ]
+  )
+  face target
+  fd run-speed
+end
+
+to pick-new-target-individual
+  set target one-of humans
+  ask zombies [ set target ([target] of myself) ]
+end
+
+
+to kill-human
+  ; Kill target if in range
+  if target != Nobody
+  [ if distance target <= zombie-tag-range
+    [ ask target
+      [ set is-live false
+        set color blue - 3 ]
+    ]
+  ]
+end
+
+; ################
+; HUMAN PROCEDURES
+; ################
+
+to human-ai
+  human-move
+  launch-projectile
+  update-human-label
+end
+
+to human-move
+  ; Select between movement modes
+  (ifelse
+    (human-move-style = "nearest")
+    [ human-move-nearest ]
+    (human-move-style = "zone-evasion")
+    [ human-move-zone-evasion ]
+  )
+end
+
+to human-move-nearest
+  ; Move directly away from nearest zombie
+  set nearest-zombie find-nearest-zombie
+  if nearest-zombie != Nobody
+  [ face find-nearest-zombie
+    rt 180
+    fd run-speed ]
+end
+
+to human-move-zone-evasion
+  ; Move away from the center-of-mass of nearby zombies.
+  set zone-zombies zombies in-radius zone-evasion-radius with [ is-live ]
+  if any? zone-zombies
+  [ facexy (sum ([xcor] of zone-zombies) / count (zone-zombies)) (sum ([ycor] of zone-zombies) / count (zone-zombies))
+    rt 180
+    fd run-speed ]
+end
+
+to launch-projectile
+  set nearest-zombie (find-nearest-zombie)
+  if find-nearest-zombie != nobody
+  ; Launch projectile at nearest zombie within range if cooldown is less than 0.
+  [ if (distance find-nearest-zombie <= projectile-range) and (cooldown-timer <= 0) and (projectiles-remaining > 0)
+    ; Check for jam
+    [ if ((random-float (1.00)) <= jam-rate)
+      [ set projectiles-remaining (0)
+        stop ]
+      ; "Hatch projectile", inheriting all properties of Human
+      hatch-projectiles 1
+      [ projectile-init
+        face (find-nearest-zombie) ; Human choses where to shoot. For now, shoot nearest zombie.
+      ]
+      set cooldown-timer (projectile-cooldown)
+      set projectiles-remaining (projectiles-remaining - 1)
+    ]
+  ]
+  set cooldown-timer (cooldown-timer - 1 / ticks-per-second)
+end
+
+to update-human-label
+  ifelse show-number-projectiles
+  [ set label projectiles-remaining ]
+  [ set label "" ]
+end
+
+; #####################
+; PROJECTILE PROCEDURES
+; #####################
+
+to projectile-ai
+
+  ; Check for zombies immediatly around projectile and stun.
+  set nearest-zombie min-one-of zombies with [ (distance myself <= zombie-hit-box-radius) and (is-live) ] [ distance myself ]
+  if nearest-zombie != Nobody
+  [ stun-zombie (nearest-zombie)
+    stop ]
+
+  ; Finds closest zombie that is 1) infront of and within hitting distance, and 2) within hitbox distance of the straight line.
+  ; If one exits, stun it. If not, move forward.
+  set nearest-zombie min-one-of zombies in-cone projectile-speed 180 with [ (distance-from-line xcor ycor heading <= zombie-hit-box-radius) and (is-live) ] [distance myself]
+  if nearest-zombie != Nobody
+  [ stun-zombie nearest-zombie
+    fd distance nearest-zombie ; Not 100% accurate, but close enough as the implement then dies
+    stop ]
+
+  ; If you reach this point, move forward.
+  fd projectile-speed
+
+  ; Check for zombies immediatly around projectile and stun, again.
+  set nearest-zombie min-one-of zombies with [ (distance myself <= zombie-hit-box-radius) and (is-live) ] [ distance myself ]
+  if nearest-zombie != Nobody
+  [ stun-zombie nearest-zombie
+    stop ]
+
+  ; Check if the implement should still be live
+  check-distance-traveled
+
+end
+
+to stun-zombie [target-zombie]
+
+  ask target-zombie
+  [ set is-live false
+    set color (red - 3) ]
+  set hit (true)
+  set is-live (false)
+  set color (yellow - 3)
+
+
+end
+
+
+to check-distance-traveled
+  ; increment distance travelede
+  set traveled (traveled + projectile-speed / projectile-iter-per-tick)
+  ; set dead if did not travel far enough
+  if traveled >= projectile-range
+  [ set is-live false
+    set color (yellow - 3)]
+end
+
+; ##################
+; UTILITY PROCEDURES
+; ##################
+
+to-report find-nearest-zombie
+  report min-one-of zombies with [ is-live ] [distance myself]
+end
+
+to-report find-nearest-human
+  report min-one-of humans with [ is-live ] [distance myself]
+end
+
+to-report distance-from-line [x y h]
+  report 1
+  ; report sqrt(((xcor - x) - sin(h) * ((ycor - y) * cos(h) + (xcor - x) * sin(h) ) )^2 + ((ycor - y) - cos(h) * ((ycor - y) * cos(h) + (xcor - x) * sin(h)))^2)
+end
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 664
