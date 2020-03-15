@@ -1,5 +1,6 @@
 ; TODO:
 ; * Make world resizale with resize-world and set-patch-size
+; * Implement shot leading
 
 ; #################
 ; BREED DEFINITIONS
@@ -17,7 +18,7 @@ directed-link-breed [ zombie-targets zombie-target ]
 zombies-own [run-speed attack-style target]
 humans-own [ run-speed projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining projectile-cooldown cooldown-timer jam-rate ]
 projectiles-own [ hit projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining traveled ]
-dead-projectiles-own [ hit ]
+dead-projectiles-own [ hit projectile-type ]
 
 ; ################
 ; SETUP PROCEDURES
@@ -482,7 +483,7 @@ num-sock-humans
 num-sock-humans
 0
 25
-8.0
+5.0
 1
 1
 NIL
@@ -690,7 +691,7 @@ MONITOR
 1119
 80
 Shots Fired
-count projectiles
+count projectiles + count dead-projectiles
 17
 1
 11
@@ -701,7 +702,7 @@ MONITOR
 1119
 125
 Shots Hit
-count projectiles with [ hit ]
+count dead-projectiles with [ hit ]
 17
 1
 11
@@ -712,7 +713,7 @@ MONITOR
 1268
 170
 Dart Hit Rate
-(count projectiles with [ (hit) and (projectile-type = \"blaster\") ]) / count projectiles with [ projectile-type = \"blaster\" ]
+(count dead-projectiles with [ (hit) and (projectile-type = \"blaster\") ]) / ( count projectiles with [ projectile-type = \"blaster\" ] + count dead-projectiles with [ projectile-type = \"blaster\" ])
 3
 1
 11
@@ -733,7 +734,7 @@ true
 true
 "" ""
 PENS
-"Shots Fired" 1.0 0 -13345367 true "" "plot count projectiles"
+"Shots Fired" 1.0 0 -13345367 true "" "plot (count projectiles + count dead-projectiles)"
 "Shots Hit" 1.0 0 -2674135 true "" "plot count dead-zombies"
 
 SLIDER
@@ -745,7 +746,7 @@ num-blaster-humans
 num-blaster-humans
 0
 25
-8.0
+5.0
 1
 1
 NIL
@@ -832,7 +833,7 @@ MONITOR
 1266
 80
 Darts Fired
-count projectiles with [ projectile-type = \"blaster\" ]
+count projectiles with [ projectile-type = \"blaster\" ] + count dead-projectiles with [ projectile-type = \"blaster\" ]
 17
 1
 11
@@ -843,7 +844,7 @@ MONITOR
 1192
 80
 Socks Fired
-count projectiles with [ projectile-type = \"sock\" ]
+count projectiles with [ projectile-type = \"sock\" ] + count dead-projectiles with [ projectile-type = \"sock\" ]
 17
 1
 11
@@ -854,7 +855,7 @@ MONITOR
 1266
 125
 Darts Hit
-count projectiles with [ (hit) and (projectile-type = \"blaster\") ]
+count dead-projectiles with [ (hit) and (projectile-type = \"blaster\") ]
 17
 1
 11
@@ -865,7 +866,7 @@ MONITOR
 1193
 125
 Socks Hit
-count projectiles with [ (hit) and ( projectile-type = \"sock\" ) ]
+count dead-projectiles with [ (hit) and ( projectile-type = \"sock\" ) ]
 17
 1
 11
@@ -876,7 +877,7 @@ MONITOR
 1194
 170
 Sock Hit Rate
-(count projectiles with [ (hit) and (projectile-type = \"sock\") ]) / count projectiles with [ projectile-type = \"sock\" ]
+(count dead-projectiles with [ (hit) and (projectile-type = \"sock\") ]) / ( count projectiles with [ projectile-type = \"sock\" ] + count dead-projectiles with [ projectile-type = \"sock\" ] )
 3
 1
 11
@@ -887,7 +888,7 @@ MONITOR
 1118
 170
 Hit Rate
-(count projectiles with [ hit ]) / count projectiles
+(count dead-projectiles with [ hit ]) / ( count projectiles + count dead-projectiles )
 3
 1
 11
@@ -908,7 +909,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -2674135 true "" "plot count dead-zombies"
+"default" 1.0 0 -2674135 true "" "plot count zombies"
 
 PLOT
 1526
