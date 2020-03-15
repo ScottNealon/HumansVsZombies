@@ -1,6 +1,8 @@
 # Humans Vs Zombies: An Agent-based Model
 This GitHub contains the files for an agent-based model of the popular campus game Humans vs Zombies. The model is implemented in popular agent-based modeling program NetLogo.
 
+[Quick access link](http://netlogoweb.org/web?https://raw.githubusercontent.com/ScottNealon/HumansVsZombies/master/main.nlogo)
+
 ## Brief Overview of Humans vs Zombies
 
 Humans vs Zombies is a campus-wide game of tag. Players act as either a Human or a Zombie as they try to survive the Zombie Apocalypse or grow the size of the Horde. Zombies attempt to tag Humans to turn them into Zombies, while Humans defend themselves with stunning implements, including sock balls and nerf blasters.
