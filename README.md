@@ -5,7 +5,7 @@ This GitHub contains the files for an agent-based model of the popular campus ga
 
 Humans vs Zombies is a campus-wide game of tag. Players act as either a Human or a Zombie as they try to survive the Zombie Apocalypse or grow the size of the Horde. Zombies attempt to tag Humans to turn them into Zombies, while Humans defend themselves with stunning implements, including sock balls and nerf blasters.
 
-For more information on rules, check out the [offcial Humans vs Zombies webiste](https://humansvszombies.org/) or the [Georgia Tech Humans vs Zombies website](https://hvz.gatech.edu/rules/).
+For more information on rules, check out the [official Humans vs Zombies webiste](https://humansvszombies.org/) or the [Georgia Tech Humans vs Zombies website](https://hvz.gatech.edu/rules/).
 
 ## Running the Model
 The model can be run in one of two formats: NetLogo Web and NetLogo Desktop.
