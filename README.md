@@ -1,5 +1,5 @@
 # Humans Vs Zombies: An Agent-based Model
-This GitHub contains the files for an agent-based modeling simulation of the popular campus game Humans vs Zombies. 
+This GitHub contains the files for an agent-based model of the popular campus game Humans vs Zombies. The model is implemented in popular agent-based modeling program NetLogo.
 
 ## Brief Overview of Humans vs Zombies
 
@@ -7,16 +7,16 @@ Humans vs Zombies is a campus-wide game of tag. Players act as either a Human or
 
 For more information on rules, check out the [offcial Humans vs Zombies webiste](https://humansvszombies.org/) or the [Georgia Tech Humans vs Zombies website](https://hvz.gatech.edu/rules/).
 
-## Running the Simulation
-The simulation can be run in one of two formats: web-hosted and locally.
+## Running the Model
+The model can be run in one of two formats: NetLogo Web and NetLogo Desktop.
 
-The web-hosted format is run from [Netlogoweb.org](https://netlogoweb.org). By pointing it towards this repository, the current model can be run. You can access this by following the following link: [Humans vs Zombies Web-hosted Simulation](http://netlogoweb.org/web?https://raw.githubusercontent.com/ScottNealon/HumansVsZombies/master/main.nlogo)
+The NetLogo Web format is run from [NetLogoWeb.org](https://netlogoweb.org). By directing the website towards this repository, the most recent version of the model can be run. You can access this by following the following link: [Humans vs Zombies NetLogo Web](http://netlogoweb.org/web?https://raw.githubusercontent.com/ScottNealon/HumansVsZombies/master/main.nlogo)
 
-To run the simulation locally, start by [downloading the NetLogo application](https://ccl.northwestern.edu/netlogo/download.shtml). Then, download [main.nlogo](https://github.com/ScottNealon/HumansVsZombies/blob/master/main.nlogo) from this repository. The simulation can be run and edited by opening main.nlogo in the NetLogo application.
+The NetLogo Desktop format is run from a desktop application. To download the application, go to [the NetLogo application download page](https://ccl.northwestern.edu/netlogo/download.shtml). Additionally, download [main.nlogo](https://github.com/ScottNealon/HumansVsZombies/blob/master/main.nlogo) from this repository. The model can be run and edited by opening main.nlogo in the NetLogo application.
 
-## Simulation Tutorial
+## Model Tutorial
 
-The simualtion starts out unloaded. Start by pressing "Reset Simulation". This will setup the agents to play the model. Press "Run Simulation" to run the model. When the simulation is complete, press "Reset Simulation" to revert. Press "Reset Settings" to set settings to default values.
+The model starts out unloaded. Start by pressing "Reset Simulation". This will setup the agents to run a single simulation. Press "Run Simulation" to run the model. When the simulation is complete, press "Reset Simulation" to revert. Press "Reset Settings" to set settings to default values.
 
 ## Simulation Settings
 TBD
