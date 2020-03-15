@@ -426,10 +426,10 @@ ticks
 60.0
 
 BUTTON
-158
-26
-281
-59
+156
+51
+279
+84
 Reset Simulation
 setup
 NIL
@@ -443,10 +443,10 @@ NIL
 1
 
 BUTTON
-295
-25
-407
-58
+293
+50
+405
+83
 Run Simulation
 go
 T
@@ -460,10 +460,10 @@ NIL
 0
 
 SLIDER
-241
-98
-413
-131
+239
+123
+411
+156
 num-zombies
 num-zombies
 0
@@ -475,10 +475,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-241
-147
-413
-180
+239
+172
+411
+205
 num-sock-humans
 num-sock-humans
 0
@@ -490,10 +490,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-242
-265
-414
-298
+240
+290
+412
+323
 zombie-speed
 zombie-speed
 0
@@ -505,10 +505,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-242
-298
-414
-331
+240
+323
+412
+356
 human-speed
 human-speed
 0
@@ -520,10 +520,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-242
-331
-414
-364
+240
+356
+412
+389
 zombie-tag-range
 zombie-tag-range
 0
@@ -535,10 +535,10 @@ ft
 HORIZONTAL
 
 SLIDER
-242
-365
-422
-398
+240
+390
+420
+423
 zombie-hit-box-radius
 zombie-hit-box-radius
 0
@@ -550,10 +550,10 @@ ft
 HORIZONTAL
 
 SLIDER
-28
-615
-200
-648
+26
+640
+198
+673
 sock-range
 sock-range
 0
@@ -565,10 +565,10 @@ ft
 HORIZONTAL
 
 SLIDER
-28
-581
-200
-614
+26
+606
+198
+639
 sock-speed
 sock-speed
 0
@@ -580,10 +580,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-28
-648
-200
-681
+26
+673
+198
+706
 sock-cooldown
 sock-cooldown
 0
@@ -595,10 +595,10 @@ s
 HORIZONTAL
 
 SLIDER
-26
-93
-205
-126
+24
+118
+203
+151
 ticks-per-second
 ticks-per-second
 1
@@ -610,20 +610,20 @@ ticks/s
 HORIZONTAL
 
 CHOOSER
-28
-386
-168
-431
+26
+411
+166
+456
 human-move-style
 human-move-style
 "nearest" "zone-evasion"
 1
 
 SLIDER
-28
-431
-211
-464
+26
+456
+209
+489
 human-zone-evasion-radius
 human-zone-evasion-radius
 0
@@ -635,10 +635,10 @@ ft
 HORIZONTAL
 
 SLIDER
-28
-548
-200
-581
+26
+573
+198
+606
 starting-socks
 starting-socks
 0
@@ -650,20 +650,20 @@ NIL
 HORIZONTAL
 
 CHOOSER
-26
-192
-184
-237
+24
+217
+182
+262
 scenario
 scenario
 "charge" "random"
 0
 
 SWITCH
-26
-126
-218
-159
+24
+151
+216
+184
 show-number-projectiles
 show-number-projectiles
 0
@@ -671,10 +671,10 @@ show-number-projectiles
 -1000
 
 SLIDER
-28
-681
-218
-714
+26
+706
+216
+739
 sock-inaccuracy
 sock-inaccuracy
 0
@@ -738,10 +738,10 @@ PENS
 "Shots Hit" 1.0 0 -2674135 true "" "plot count dead-zombies"
 
 SLIDER
-241
-180
-413
-213
+239
+205
+411
+238
 num-blaster-humans
 num-blaster-humans
 0
@@ -753,10 +753,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-238
-548
-410
-581
+236
+573
+408
+606
 starting-darts
 starting-darts
 0
@@ -768,10 +768,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-238
-581
-410
-614
+236
+606
+408
+639
 dart-speed
 dart-speed
 0
@@ -783,10 +783,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-238
-614
-410
-647
+236
+639
+408
+672
 dart-range
 dart-range
 0
@@ -798,10 +798,10 @@ ft
 HORIZONTAL
 
 SLIDER
-238
-647
-410
-680
+236
+672
+408
+705
 dart-cooldown
 dart-cooldown
 0
@@ -813,10 +813,10 @@ s
 HORIZONTAL
 
 SLIDER
-238
-680
-416
-713
+236
+705
+414
+738
 dart-inaccuracy
 dart-inaccuracy
 0
@@ -1031,10 +1031,10 @@ count dead-humans with [ projectile-type = \"blaster\" ] / ( count humans with [
 11
 
 SLIDER
-28
-714
-200
-747
+26
+739
+198
+772
 sock-jam-rate
 sock-jam-rate
 0
@@ -1046,10 +1046,10 @@ sock-jam-rate
 HORIZONTAL
 
 SLIDER
-238
-713
-410
-746
+236
+738
+408
+771
 dart-jam-rate
 dart-jam-rate
 0
@@ -1061,90 +1061,90 @@ dart-jam-rate
 HORIZONTAL
 
 CHOOSER
-28
-340
-183
-385
+26
+365
+181
+410
 zombie-attack-style
 zombie-attack-style
 "nearest-human" "targeting-individual"
 0
 
 TEXTBOX
-28
-68
-238
-90
+26
+93
+236
+115
 Simulation Settings
 18
 0.0
 1
 
 TEXTBOX
-27
-168
-177
-190
+25
+193
+175
+215
 Scenario Settings
 18
 0.0
 1
 
 TEXTBOX
-29
-315
-179
-339
+27
+340
+177
+364
 AI Settings
 18
 0.0
 1
 
 TEXTBOX
-242
-70
-440
-93
+240
+95
+438
+118
 Faction Count Settings
 18
 0.0
 1
 
 TEXTBOX
-242
-242
-427
-266
+240
+267
+425
+291
 Player Abillity Settings
 18
 0.0
 1
 
 TEXTBOX
-31
-522
-181
-544
+29
+547
+179
+569
 Sock Settings
 18
 0.0
 1
 
 TEXTBOX
-238
-521
-388
-543
+236
+546
+386
+568
 Blaster Settings
 18
 0.0
 1
 
 BUTTON
-33
-26
-145
-59
+31
+51
+143
+84
 Reset Settings
 reset
 NIL
@@ -1158,20 +1158,20 @@ NIL
 1
 
 CHOOSER
-28
-464
-166
-509
+26
+489
+164
+534
 human-launch-style
 human-launch-style
 "nearest"
 0
 
 SLIDER
-26
-237
-207
-270
+24
+262
+205
+295
 zombie-charge-clumpness
 zombie-charge-clumpness
 0
@@ -1183,10 +1183,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-26
-270
-207
-303
+24
+295
+205
+328
 human-charge-clumpness
 human-charge-clumpness
 0
@@ -1196,6 +1196,16 @@ human-charge-clumpness
 1
 NIL
 HORIZONTAL
+
+TEXTBOX
+144
+25
+344
+69
+Simulation Controls
+18
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
