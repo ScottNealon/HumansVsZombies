@@ -1421,7 +1421,7 @@ The first criteria ensures that all zombies that might slip past the projectile 
 
 If there is a zombie that satisfies these criteria, the projectile finds the closest one, moves to it, and stuns it. The zombie is marked as dead and is replaced with a `dead-zombie`.
 
-If there is not a zombie that satisfies these criteria, the projectile travels forwards the minimum of `projectile-speed` and `projectile-range - traveled`. If `projectile-range = traveled`, the projectile dies and is replaced with a `dead-projectile`.
+If there is not a zombie that satisfies these criteria, the projectile travels forwards the minimum of `projectile-speed` and `projectile-range - traveled`. The distance traveled is updated. If `projectile-range = traveled`, the projectile dies and is replaced with a `dead-projectile`.
 
 
 # MODEL SETTINGS
