@@ -1301,9 +1301,9 @@ This model simulates the popular campus game Humans vs Zombies. The model is int
 The model starts out unloaded. Start by pressing “Reset Simulation”. This will setup the agents to run a single simulation. Press “Run Simulation” to run the model. When the simulation is complete, press “Reset Simulation” to revert. Press “Reset Settings” to set settings to default values.
 
 ## Humans vs Zombies Quick Rules
-Humans vs Zombies is a campus-wide game of tag. Players act as either a Human or a Zombie as they try to survive the Zombie Apocalypse or grow the size of the Horde. Zombies attempt to tag Humans to turn them into Zombies, while Humans defend themselves with stunning implements, including sock balls and nerf blasters.
+Humans vs Zombies is a campus-wide game of tag. Players act as either a Human or a Zombie as they try to survive the Zombie Apocalypse or grow the size of the Horde. Zombies attempt to tag Humans to turn them into Zombies, while Humans defend themselves with stunning implements, including sock balls and Nerf blasters.
 
-Zombies play by attempting to "tag" humans. When a Human is tagged by a Zombie, they die and are reserected as a Zombie.
+Zombies play by attempting to "tag" humans. When a Human is tagged by a Zombie, they die and are resurrected as a Zombie.
 
 Humans play by defending themselves from Zombies by "stunning" them. A human either throws a sock or launches a dart from a blaster at a Zombie. If the zombie is hit by the projectile, they are "stunned" and wait a period of time before resurrecting. 
 
@@ -1313,9 +1313,9 @@ There are six breeds of turtles in the model: `human`, `zombie`, `projectile`, a
 
 # MODEL PROCEDURES
 
-The model starts by initalizing the setup. All the turtles are created and placed. The model the takes turns each tick executing zombie procedures, human procedures, and projectile procedures, in order. The simulation ends when when "Run Simulation" is turned off, there are no more humans, or there are no more zombies.
+The model starts by initializing the setup. All the turtles are created and placed. The model the takes turns each tick executing zombie procedures, human procedures, and projectile procedures, in order. The simulation ends when when "Run Simulation" is turned off, there are no more humans, or there are no more zombies.
 
-To best visualize the discrete, ordered nature of the simulation, set "view updates" on the top ribben to "continuous" and set "speed" to "slower", around 25%. This will show that the zombies move, then the humans, then the projectiles.
+To best visualize the discrete, ordered nature of the simulation, set "view updates" on the top ribbon to "continuous" and set "speed" to "slower", around 25%. This will show that the zombies move, then the humans, then the projectiles.
 
 ## Initialization
 
@@ -1323,18 +1323,18 @@ The model starts the simulation by creating and placing the humans and zombies. 
 
 #### Scenario: Charge
 
-Humans and zombies are set up on in two seperate clumps according to a normal distribution. The zombies are set up around the point `(0, max-xcor / 2)` while the humans are set up around the point `(0, 0)`. The standard deviation of the distribution in the x direction is given as `zombie/human-charge-spread` while the y direction is given as `zombie/human-charge-spread / 4`. This difference in standard deviations creates the "gun-line" spread normally experienced in charges.
+Humans and zombies are set up on in two separate clumps according to a normal distribution. The zombies are set up around the point `(0, max-xcor / 2)` while the humans are set up around the point `(0, 0)`. The standard deviation of the distribution in the x direction is given as `zombie/human-charge-spread` while the y direction is given as `zombie/human-charge-spread / 4`. This difference in standard deviations creates the "gun-line" spread normally experienced in charges.
 
 #### Scenario: Random
 
-Humans and zombies are set up at completely random x and y coordintes. This could be used to simulate a chaotic encounter without structure. 
+Humans and zombies are set up at completely random x and y coordinates. This could be used to simulate a chaotic encounter without structure. 
 
 ## Human
 
 During each iteration, humans follow the following procedure:
 
 1. Move according to procedure dictated by `human-move-style`
-2. Attempt to launch a projectile according to prodecure dictated by `human-launch-style`
+2. Attempt to launch a projectile according to procedure dictated by `human-launch-style`
 
 ### Human Movement
 
@@ -1350,7 +1350,7 @@ The human moves directly away from the nearest zombie.
 
 #### Human Move Style: zone-evasion
 
-The human indentifies all zombies within a radius defined by `human-zone-evasion-radius` and moves directly away from the center of mass of the zombies.
+The human identifies all zombies within a radius defined by `human-zone-evasion-radius` and moves directly away from the center of mass of the zombies.
 
 #### Human Move Style: hit-and-run
 
@@ -1367,7 +1367,7 @@ If a human meets both of these criteria, it will attempt to launch a projectile 
 
 #### Cooldown
 
-Every time a human launches a projectile, it's `cooldown-timer` will reset to `projectile-cooldown`. This represents the amount of time that must pass before the human can take another shot. Every time a human attemps to launch a projectile, even if it fails, the cooldown timer is reduced by the time step. A human is considered "coolled down" when `cooldown-timer <= 0`.
+Every time a human launches a projectile, it's `cooldown-timer` will reset to `projectile-cooldown`. This represents the amount of time that must pass before the human can take another shot. Every time a human attempts to launch a projectile, even if it fails, the cooldown timer is reduced by the time step. A human is considered "cooled down" when `cooldown-timer <= 0`.
 
 #### Jams
 
@@ -1375,7 +1375,7 @@ Every time a human attempts to launch a projectile, there is a random chance tha
 
 Each human is assigned a `jam-rate` according to their projectile type. The jam is modeled by comparing `jam-rate` to a randomly generated number between 0 and 1. If the number is less than the `jam-rate`, `jammed` is set to `true` and `projectiles-remaining` is set to `0`.
 
-A `jam-rate` of 5% corresponds to a jam on average every 12.5 shots while a `jam-rate` of 1% corresponds to a jam on average every 68.0 shots. The equation for average number of shots before jam for a given jam rate is `shots = ( ln(0.5) / ln(1 - jam-rate) ) - 1`.
+A `jam-rate` of 5% corresponds to a jam on average every 12.5 shots while a `jam-rate` of 1% corresponds to a jam on average every 68.0 shots. The equation for average number of shots before jam for a given jam rate is `shots = ( ln(0.5) / ln(1 - jam-rate) ) - 1`. This equation is the inverse of the geometric cumulative distribution function.
 
 #### Human Launch Style: Nearest Zombie in Range
 
@@ -1412,7 +1412,7 @@ The zombie will attempt to tag its currently targeted human. If the targeted hum
 
 During each iteration, projectiles follow the following procedure:
 
-The projectile starts by identifiying all zombies that statisfy either of the following criteria:
+The projectile starts by identifying all zombies that satisfy either of the following criteria:
 
    * Zombie is within `zombie-hitbox-radius` of projectiles starting point.
    * Zombie is within a cone of radius `min of (projectile-speed) and (projectile-range - traveled)` and withing `zombie-hitbox-radius` of the line of travel of the projectile.
@@ -1429,7 +1429,7 @@ If there is not a zombie that satisfies these criteria, the projectile travels f
 The function of all the settings on the interface tab are described below. Default values are shown in (parentheses). Units are shown in [brackets].
 
 ## Simulation Settings
-* **ticks-per-second (15)**: Number of discrete timesteps that occur per second (Hz).
+* **ticks-per-second (15)**: Number of discrete time-steps that occur per second (Hz).
 * **show-number-projectiles (true)**: Show number of remaining projectiles next to human sprite. Shows *X* if human experiences a jam.
 * **show-zombie-targets (true)**: Shows links between zombies and their target humans.
 
@@ -1450,7 +1450,7 @@ The function of all the settings on the interface tab are described below. Defau
 * **num-sock-humans (5)**: Number of sock humans
 * **num-blaster-humans (5)**: Number of blaster humans
 
-## Player Abillity Settings
+## Player Ability Settings
 * **zombie-speed (20) [ft/s]**: Movement speed of zombies
 * **human-speed (15) [ft/s]**: Movement speed of humans
 * **zombie-tag-range (2) [ft]**: Distance a zombie can tag a human from
