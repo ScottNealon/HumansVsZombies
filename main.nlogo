@@ -1,80 +1,116 @@
+; TODO:
+; * Make world resizale with resize-world and set-patch-size
+
 ; #################
 ; BREED DEFINITIONS
 ; #################
 
-breed [zombies zombie]
-breed [humans human]
-breed [projectiles projectile]
+breed [ zombies zombie ]
+breed [ humans human ]
+breed [ projectiles projectile ]
+breed [ dead-zombies dead-zombie ]
+breed [ dead-humans dead-human ]
+breed [ dead-projectiles dead-projectile ]
 
-zombies-own [is-live run-speed attack-style target]
-humans-own [ is-live run-speed projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining projectile-cooldown cooldown-timer jam-rate nearest-zombie zone-zombies ]
-projectiles-own [ is-live hit projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining traveled nearest-zombie in-line-zombie]
+directed-link-breed [ zombie-targets zombie-target ]
+
+zombies-own [run-speed attack-style target]
+humans-own [ run-speed projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining projectile-cooldown cooldown-timer jam-rate ]
+projectiles-own [ hit projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining traveled ]
+dead-projectiles-own [ hit ]
 
 ; ################
 ; SETUP PROCEDURES
 ; ################
 
+; Sets all values on interface screen to defaults
 to reset
-  ; TODO: Set all value to default
+  set ticks-per-second (15)
+  set show-number-projectiles (true)
+  set scenario ("charge")
+  set zombie-charge-clumpness (25)
+  set human-charge-clumpness (25)
+  set zombie-attack-style ("nearest-human")
+  set human-move-style ("zone-evasion")
+  set human-zone-evasion-radius (20)
+  set human-launch-style ("nearest")
+  set num-zombies (50)
+  set num-sock-humans (5)
+  set num-blaster-humans (5)
+  set zombie-speed (20)
+  set human-speed (15)
+  set zombie-tag-range (2)
+  set zombie-hit-box-radius (2)
+  set starting-socks (10)
+  set sock-speed (35)
+  set sock-range (35)
+  set sock-cooldown (1)
+  set sock-inaccuracy (5)
+  set sock-jam-rate (0)
+  set starting-darts (30)
+  set dart-speed (80)
+  set dart-range (50)
+  set dart-cooldown (0.5)
+  set dart-inaccuracy (25)
+  set dart-jam-rate (0.5)
+  ; TODO: Set all value to defaults
 end
 
-; General Setup
+; Prepares simulation for running
 to setup
   clear-all
-  setup-patches
-  setup-zombies
-  setup-humans
+  ; Setup patches
+  ask patches [ set pcolor green ]
+  ; Setup humans and zombies
+  create-zombies num-zombies [ init-zombie ]
+  create-humans num-sock-humans [ init-sock-human ]
+  create-humans num-blaster-humans [ init-blaster-human ]
+  ; Places humans and zombies
+  place-humans-and-zombies
+  ; Reset ticks to 0
   reset-ticks
 end
 
-; Patches Setup
-to setup-patches
-  ask patches [ set pcolor green ]
+; Places all humans and zombies according to scenario
+to place-humans-and-zombies
+  (ifelse
+    ; Distribute all humans and zombies according to normal distributions, seperated by a quarter of the field
+    (scenario = "charge") [
+      ask zombies [ random-normal-placement (0) (zombie-charge-clumpness) (max-pycor / 2) (zombie-charge-clumpness / 4) ]
+      ask humans [ random-normal-placement (0) (human-charge-clumpness) (0) (human-charge-clumpness / 4) ]
+    ]
+    ; Distributes all humans and zombies randomly.
+    (scenario = "random") [
+      ask zombies [setxy random-xcor random-ycor]
+      ask humans [setxy random-xcor random-ycor]
+    ]
+  )
 end
 
-; Zombie setup
-to setup-zombies
-  create-zombies num-zombies [ zombie-init ]
-end
+; ###############
+; INIT PROCEDURES
+; ###############
 
-to zombie-init
+; Creates a zombie
+to init-zombie
   set shape "person"
   set size 6 ; 6 feet tall
   set color red
-    (ifelse
-    (scenario = "Random distribution")
-    [setxy random-xcor random-ycor]
-    ; Set all zombies to the top half of the field.
-    (scenario = "Charge")
-    [setxy (random-xcor) (random (max-pxcor / 2) + max-pxcor / 2) ]
-  )
-  set is-live (true)
   set run-speed (zombie-speed / ticks-per-second)
   set attack-style (zombie-attack-style)
 end
 
-; Human Setup
-to setup-humans
-  create-humans num-sock-humans    [ human-init sock-human-init ]
-  create-humans num-blaster-humans [ human-init blaster-human-init ]
-end
-
-to human-init
+; Creates a human
+to init-human
   set shape "person"
   set size 6 ; 6 feet tall
-  (ifelse
-    (scenario = "Random distribution")
-    [setxy random-xcor random-ycor]
-    ; Set all humans to the bottom half of the field.
-    (scenario = "Charge")
-    [setxy (random-xcor) (random (min-pycor) / 2)]
-  )
-  set is-live true
   set run-speed (human-speed / ticks-per-second)
   set cooldown-timer 0
 end
 
-to sock-human-init
+; Creates a sock human
+to init-sock-human
+  init-human
   set projectile-type "sock"
   set color blue + 1
   set projectile-range (sock-range)
@@ -88,7 +124,9 @@ to sock-human-init
   [ set label "" ]
 end
 
-to blaster-human-init
+; Creates a blaster human
+to init-blaster-human
+  init-human
   set projectile-type "blaster"
   set color blue
   set projectile-range (dart-range)
@@ -102,34 +140,48 @@ to blaster-human-init
   [ set label "" ]
 end
 
-; Projectile Setup
-to projectile-init
+; Creates a projectile
+to init-projectile
   set shape "circle"
   set size 1
   set color yellow
-  set is-live true
   set hit (false)
   set traveled 0
   rt ((random projectile-inaccuracy) - projectile-inaccuracy / 2) ; Randomly turn +/-(inacccuracy/2)
   set label ""
 end
 
+; Create dead human
+to init-dead-human
+  set shape "person"
+  set color blue - 3
+end
+
+; Create dead zombie
+to init-dead-zombie
+  set shape "person"
+  set color red - 3
+end
+
+; Create dead projectile
+to init-dead-projectile
+  set shape "circle"
+  set color yellow - 3
+end
+
 ; ##############
 ; RUN PROCEDURES
 ; ##############
 
+; Function repeats until end
 to go
-  ; If there are no live humans or live zombies, stop
-  if (not any? humans with [ is-live]) or (not any? zombies with [ is-live]) [ stop ]
-
-
-  ; follow procedure for each turtle type
-  ask zombies with [ is-live = true ] [ zombie-ai]
-  ask humans with [ is-live = true ] [ human-ai ]
-  ask projectiles with [ is-live = true ] [ projectile-ai ]
-
-
-  ; iterate
+  ; If there are no humans or no zombies, stop.
+  if (count (humans) = 0) or (count (zombies) = 0) [ stop ]
+  ; Ask each breed to perform action, presuming there are enemies remaining
+  ask zombies [ if count (humans) > 0 [ zombie-ai ] ]
+  ask humans [ if count (zombies) > 0 [ human-ai ] ]
+  ask projectiles [ if count (zombies) > 0 [ projectile-ai ] ]
+  ; Iterate
   tick
 end
 
@@ -137,54 +189,57 @@ end
 ; ZOMBIE PROCEDURES
 ; ################
 
+; Zombie decision making
 to zombie-ai
   zombie-move
   kill-human
 end
 
+; Zombie moves according to movement mode
 to zombie-move
-  ; Select between movement modes
   (ifelse
-    (attack-style = "nearest-human")
-    [ zombie-move-nearest-human ]
-    (attack-style = "targeting-individual")
-    [ zombie-move-targeting-individual ]
+    (attack-style = "nearest-human") [ zombie-move-nearest-human ]
+    (attack-style = "targeting-individual") [ zombie-move-targeting-individual ]
   )
 end
 
+; Zombie finds nearest human and runs at them
 to zombie-move-nearest-human
-  ; Find nearest human and run at them.
-  set target find-nearest-human
-  if target != Nobody
-  [ face target
-    fd run-speed ]
-end
-
-to zombie-move-targeting-individual
-  ; Everyone picks a single target and chases them
-  ( ifelse
-    ; Initializes target
-    ( target = 0) [ pick-new-target-individual ]; If target is uninitialized
-    ; If target is dead, swap to nearest-human
-    ( not ([is-live] of target) ) [ set attack-style "nearest-human" ]
-  )
-  face target
+  let nearest-human (min-one-of humans [distance myself])
+  ; If there is not a link with the nearest human, kill all links and create one
+  if not (zombie-target-neighbor? nearest-human)[
+    ask my-zombie-targets [ die ]
+    create-zombie-target-to nearest-human
+  ]
+  ; Run towards nearest human
+  face nearest-human
   fd run-speed
 end
 
-to pick-new-target-individual
-  set target one-of humans
-  ask zombies [ set target ([target] of myself) ]
+; All zombies pick a single target and chases them
+to zombie-move-targeting-individual
+  ; If there is no target, pick a new horde target
+  ; TODO: Pick human closest to Horde center of gravity
+  ; TODO: Pick human closest to any zombie
+  if ( count (zombie-target-neighbors) = 0 ) [ pick-new-horde-target ]
+  ; Face zombie-target and charge them
+  face one-of zombie-target-neighbors
+  fd run-speed
 end
 
+; Horde selects a single target randomly and charges them
+to pick-new-horde-target
+  ask zombie-targets [ die ]
+  let horde-target one-of humans
+  ask zombies [ create-zombie-target-to ([horde-target] of myself) ]
+end
 
+; Kills target if in range
 to kill-human
-  ; Kill target if in range
-  if target != Nobody
-  [ if distance target <= zombie-tag-range
-    [ ask target
-      [ set is-live false
-        set color blue - 3 ]
+  if distance (one-of zombie-target-neighbors) <= zombie-tag-range [
+    ask one-of zombie-target-neighbors [
+      hatch-dead-humans 1 [ init-dead-human ]
+      die
     ]
   ]
 end
@@ -193,65 +248,86 @@ end
 ; HUMAN PROCEDURES
 ; ################
 
+; Human decision making
 to human-ai
   human-move
-  launch-projectile
+  human-launch
   update-human-label
 end
 
+; Human moves according to movement mode
 to human-move
-  ; Select between movement modes
   (ifelse
-    (human-move-style = "nearest")
-    [ human-move-nearest ]
-    (human-move-style = "zone-evasion")
-    [ human-move-zone-evasion ]
+    (human-move-style = "nearest") [ human-move-nearest ]
+    (human-move-style = "zone-evasion") [ human-move-zone-evasion ]
   )
 end
 
+; Human moves directly away from nearest zombie
 to human-move-nearest
-  ; Move directly away from nearest zombie
-  set nearest-zombie find-nearest-zombie
-  if nearest-zombie != Nobody
-  [ face find-nearest-zombie
-    rt 180
-    fd run-speed ]
+  let nearest-zombie (min-one-of zombies [distance myself])
+  face nearest-zombie
+  rt 180
+  fd run-speed
 end
 
+; Human moves away from center-of-mass of nearby zombies.
 to human-move-zone-evasion
-  ; Move away from the center-of-mass of nearby zombies.
-  set zone-zombies zombies in-radius zone-evasion-radius with [ is-live ]
-  if any? zone-zombies
-  [ facexy (sum ([xcor] of zone-zombies) / count (zone-zombies)) (sum ([ycor] of zone-zombies) / count (zone-zombies))
+  ; Select all zombies within radius
+  let zone-zombies zombies in-radius human-zone-evasion-radius
+  if any? zone-zombies [
+    let xy (agentset-center-of-mass (zombies))
+    ; Face CG then turn around and run
+    facexy (item 0 xy) (item 1 xy)
     rt 180
-    fd run-speed ]
+    fd run-speed
+  ]
 end
 
-to launch-projectile
-  set nearest-zombie (find-nearest-zombie)
-  if find-nearest-zombie != nobody
-  ; Launch projectile at nearest zombie within range if cooldown is less than 0.
-  [ if (distance find-nearest-zombie <= projectile-range) and (cooldown-timer <= 0) and (projectiles-remaining > 0)
-    ; Check for jam
-    [ if ((random-float (1.00)) <= jam-rate)
-      [ set projectiles-remaining (0)
-        stop ]
-      ; "Hatch projectile", inheriting all properties of Human
-      hatch-projectiles 1
-      [ projectile-init
-        face (find-nearest-zombie) ; Human choses where to shoot. For now, shoot nearest zombie.
-      ]
-      set cooldown-timer (projectile-cooldown)
-      set projectiles-remaining (projectiles-remaining - 1)
-    ]
+; Human shoots according to shooting mode
+to human-launch
+  ; Only execute if cooldown is over and projectiles remain.
+  if (cooldown-timer <= 0) and (projectiles-remaining > 0) [
+    (ifelse
+      (human-launch-style = "nearest") [ human-launch-nearest ]
+      ; TODO Add more launch styles
+    )
   ]
+  ; Reduce cooldown, regardless of firing
   set cooldown-timer (cooldown-timer - 1 / ticks-per-second)
 end
 
+; Human launches a projectile at a zombie if within range
+to human-launch-nearest
+  let nearest-zombie (min-one-of zombies [distance myself])
+  if (distance nearest-zombie <= projectile-range) [
+    human-launch-utility (towards nearest-zombie)
+  ]
+end
+
+; Utility function used by all launchers
+to human-launch-utility [direction]
+  ; Checks for random jam
+  ifelse (random-float (1) <= jam-rate) [
+    set projectiles-remaining (0)
+  ]
+  [  ; If blaster doesn't jam, "Hatch projectile", inheriting all relevant properties of Human, including position and projectile properties
+    hatch-projectiles 1 [
+      init-projectile
+      set heading direction
+    ]
+    set cooldown-timer (projectile-cooldown)
+    set projectiles-remaining (projectiles-remaining - 1)
+  ]
+end
+
 to update-human-label
-  ifelse show-number-projectiles
-  [ set label projectiles-remaining ]
-  [ set label "" ]
+  ifelse show-number-projectiles [
+    set label projectiles-remaining
+  ]
+  [
+    set label ""
+  ]
 end
 
 ; #####################
@@ -259,67 +335,54 @@ end
 ; #####################
 
 to projectile-ai
-
-  ; Check for zombies immediatly around projectile and stun.
-  set nearest-zombie min-one-of zombies with [ (distance myself <= zombie-hit-box-radius) and (is-live) ] [ distance myself ]
-  if nearest-zombie != Nobody
-  [ stun-zombie (nearest-zombie)
-    stop ]
-
-  ; Finds closest zombie that is 1) infront of and within hitting distance, and 2) within hitbox distance of the straight line.
-  ; If one exits, stun it. If not, move forward.
-  set nearest-zombie min-one-of zombies in-cone projectile-speed 180 with [ (distance-from-line xcor ycor heading <= zombie-hit-box-radius) and (is-live) ] [distance myself]
-  if nearest-zombie != Nobody
-  [ stun-zombie nearest-zombie
-    fd distance nearest-zombie ; Not 100% accurate, but close enough as the implement then dies
-    stop ]
-
-  ; If you reach this point, move forward.
-  fd projectile-speed
-
-  ; Check for zombies immediatly around projectile and stun, again.
-  set nearest-zombie min-one-of zombies with [ (distance myself <= zombie-hit-box-radius) and (is-live) ] [ distance myself ]
-  if nearest-zombie != Nobody
-  [ stun-zombie nearest-zombie
-    stop ]
-
-  ; Check if the implement should still be live
-  check-distance-traveled
-
+  ; Creates agentset of zombies within hitbox of the projectile or in the direct line of fire.
+  let agentset-1 ( zombies in-radius (zombie-hit-box-radius))
+  let agentset-2 ( zombies in-cone projectile-speed 180 with [ (distance-from-line (xcor) (ycor) (heading)) <= zombie-hit-box-radius ] )
+  let nearby-zombies ( turtle-set (agentset-1) (agentset-2) )
+  ; If there are any nearby zombies, select nearest one to stun.
+  ifelse count (nearby-zombies) > 0 [
+    let nearest-zombie (min-one-of nearby-zombies [distance myself])
+    ; If the nearest zombie is within projectile range, stun it.
+    ifelse ((distance nearest-zombie) <= (projectile-range - traveled)) [
+      fd (distance nearest-zombie) ; Not 100% accurate, but close enough as the implement then dies.
+      stun-zombie nearest-zombie
+    ]
+    [ ; If not in range, projectile moves then dies.
+      fd (projectile-range - traveled)
+      hatch-dead-projectiles (1) [ init-dead-projectile ]
+      die
+    ]
+  ]
+  [ ; If no nearby zombies, move forwards and update
+    fd (projectile-speed)
+    set traveled (traveled + projectile-speed)
+    if traveled >= projectile-range [
+      hatch-dead-projectiles (1) [ init-dead-projectile ]
+      die
+    ]
+  ]
 end
 
 to stun-zombie [target-zombie]
-
-  ask target-zombie
-  [ set is-live false
-    set color (red - 3) ]
-  set hit (true)
-  set is-live (false)
-  set color (yellow - 3)
-
-
-end
-
-
-to check-distance-traveled
-  ; increment distance travelede
-  set traveled (traveled + projectile-speed)
-  ; set dead if did not travel far enough
-  if traveled >= projectile-range
-  [ set is-live false
-    set color (yellow - 3)]
+  ask target-zombie [
+    hatch-dead-zombies (1) [ init-dead-zombie ]
+    die
+  ]
+  hatch-dead-projectiles (1) [
+    init-dead-projectile
+    set hit true
+  ]
+  die
 end
 
 ; ##################
 ; UTILITY PROCEDURES
 ; ##################
 
-to-report find-nearest-zombie
-  report min-one-of zombies with [ is-live ] [distance myself]
-end
-
-to-report find-nearest-human
-  report min-one-of humans with [ is-live ] [distance myself]
+to-report agentset-center-of-mass [agentset]
+  let xcg mean ([xcor] of agentset )
+  let ycg mean ([ycor] of agentset )
+  report list (xcg) (ycg)
 end
 
 to-report distance-from-line [x y h]
@@ -327,15 +390,21 @@ to-report distance-from-line [x y h]
   ; report sqrt(((xcor - x) - sin(h) * ((ycor - y) * cos(h) + (xcor - x) * sin(h) ) )^2 + ((ycor - y) - cos(h) * ((ycor - y) * cos(h) + (xcor - x) * sin(h)))^2)
 end
 
+; Randomly places turtles according to normal distribution, limited by boundaries
+to random-normal-placement [xmean xstd ymean ystd]
+  let x min (list (max (list (random-normal (xmean) (xstd)) (min-pxcor))) (max-pxcor))
+  let y min (list (max (list (random-normal (ymean) (ystd)) (min-pycor))) (max-pycor))
+  setxy (x) (y)
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-449
-31
-1064
-647
+441
+19
+1013
+832
 -1
 -1
-6.01
+4.0
 1
 12
 1
@@ -345,10 +414,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--50
-50
--50
-50
+-70
+70
+-100
+100
 1
 1
 1
@@ -356,11 +425,11 @@ ticks
 60.0
 
 BUTTON
-165
+158
 26
-275
+281
 59
-NIL
+Reset Simulation
 setup
 NIL
 1
@@ -375,9 +444,9 @@ NIL
 BUTTON
 295
 25
-406
+407
 58
-NIL
+Run Simulation
 go
 T
 1
@@ -398,7 +467,7 @@ num-zombies
 num-zombies
 0
 100
-30.0
+50.0
 1
 1
 NIL
@@ -413,7 +482,7 @@ num-sock-humans
 num-sock-humans
 0
 25
-5.0
+8.0
 1
 1
 NIL
@@ -480,10 +549,10 @@ ft
 HORIZONTAL
 
 SLIDER
-30
-516
-202
-549
+28
+615
+200
+648
 sock-range
 sock-range
 0
@@ -495,10 +564,10 @@ ft
 HORIZONTAL
 
 SLIDER
-30
-482
-202
-515
+28
+581
+200
+614
 sock-speed
 sock-speed
 0
@@ -510,10 +579,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-29
-551
-201
-584
+28
+648
+200
+681
 sock-cooldown
 sock-cooldown
 0
@@ -540,22 +609,22 @@ ticks/s
 HORIZONTAL
 
 CHOOSER
-29
-321
-169
-366
+28
+386
+168
+431
 human-move-style
 human-move-style
 "nearest" "zone-evasion"
 1
 
 SLIDER
-29
-366
-225
-399
-zone-evasion-radius
-zone-evasion-radius
+28
+431
+211
+464
+human-zone-evasion-radius
+human-zone-evasion-radius
 0
 50
 20.0
@@ -565,15 +634,15 @@ ft
 HORIZONTAL
 
 SLIDER
-30
-446
-202
-479
+28
+548
+200
+581
 starting-socks
 starting-socks
 0
 100
-30.0
+10.0
 1
 1
 NIL
@@ -586,8 +655,8 @@ CHOOSER
 237
 scenario
 scenario
-"Random distribution" "Charge"
-1
+"charge" "random"
+0
 
 SWITCH
 26
@@ -601,10 +670,10 @@ show-number-projectiles
 -1000
 
 SLIDER
-29
-585
-219
-618
+28
+681
+218
+714
 sock-inaccuracy
 sock-inaccuracy
 0
@@ -616,10 +685,10 @@ degrees
 HORIZONTAL
 
 MONITOR
-1096
-39
-1171
-84
+1044
+35
+1119
+80
 Shots Fired
 count projectiles
 17
@@ -627,10 +696,10 @@ count projectiles
 11
 
 MONITOR
-1096
-84
-1171
-129
+1044
+80
+1119
+125
 Shots Hit
 count projectiles with [ hit ]
 17
@@ -638,10 +707,10 @@ count projectiles with [ hit ]
 11
 
 MONITOR
-1246
-129
-1320
-174
+1194
+125
+1268
+170
 Dart Hit Rate
 (count projectiles with [ (hit) and (projectile-type = \"blaster\") ]) / count projectiles with [ projectile-type = \"blaster\" ]
 3
@@ -649,10 +718,10 @@ Dart Hit Rate
 11
 
 PLOT
-1098
-185
-1340
-433
+1046
+181
+1288
+429
 Shots Fired vs Shots Hit
 Ticks
 Count
@@ -665,7 +734,7 @@ true
 "" ""
 PENS
 "Shots Fired" 1.0 0 -13345367 true "" "plot count projectiles"
-"Shots Hit" 1.0 0 -2674135 true "" "plot count zombies with [ is-live = False]"
+"Shots Hit" 1.0 0 -2674135 true "" "plot count dead-zombies"
 
 SLIDER
 241
@@ -676,32 +745,32 @@ num-blaster-humans
 num-blaster-humans
 0
 25
-5.0
+8.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-245
-446
-417
-479
+238
+548
+410
+581
 starting-darts
 starting-darts
 0
 100
-50.0
+30.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-245
-479
-417
-512
+238
+581
+410
+614
 dart-speed
 dart-speed
 0
@@ -713,10 +782,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-245
-512
-417
-545
+238
+614
+410
+647
 dart-range
 dart-range
 0
@@ -728,10 +797,10 @@ ft
 HORIZONTAL
 
 SLIDER
-245
-546
-417
-579
+238
+647
+410
+680
 dart-cooldown
 dart-cooldown
 0
@@ -743,10 +812,10 @@ s
 HORIZONTAL
 
 SLIDER
-245
-579
-423
-612
+238
+680
+416
+713
 dart-inaccuracy
 dart-inaccuracy
 0
@@ -758,10 +827,10 @@ degrees
 HORIZONTAL
 
 MONITOR
-1244
-39
-1318
-84
+1192
+35
+1266
+80
 Darts Fired
 count projectiles with [ projectile-type = \"blaster\" ]
 17
@@ -769,10 +838,10 @@ count projectiles with [ projectile-type = \"blaster\" ]
 11
 
 MONITOR
-1169
-39
-1244
-84
+1117
+35
+1192
+80
 Socks Fired
 count projectiles with [ projectile-type = \"sock\" ]
 17
@@ -780,10 +849,10 @@ count projectiles with [ projectile-type = \"sock\" ]
 11
 
 MONITOR
-1245
-84
-1318
-129
+1193
+80
+1266
+125
 Darts Hit
 count projectiles with [ (hit) and (projectile-type = \"blaster\") ]
 17
@@ -791,10 +860,10 @@ count projectiles with [ (hit) and (projectile-type = \"blaster\") ]
 11
 
 MONITOR
-1170
-84
-1245
-129
+1118
+80
+1193
+125
 Socks Hit
 count projectiles with [ (hit) and ( projectile-type = \"sock\" ) ]
 17
@@ -802,10 +871,10 @@ count projectiles with [ (hit) and ( projectile-type = \"sock\" ) ]
 11
 
 MONITOR
-1170
-129
-1246
-174
+1118
+125
+1194
+170
 Sock Hit Rate
 (count projectiles with [ (hit) and (projectile-type = \"sock\") ]) / count projectiles with [ projectile-type = \"sock\" ]
 3
@@ -813,10 +882,10 @@ Sock Hit Rate
 11
 
 MONITOR
-1096
-129
-1170
-174
+1044
+125
+1118
+170
 Hit Rate
 (count projectiles with [ hit ]) / count projectiles
 3
@@ -824,10 +893,10 @@ Hit Rate
 11
 
 PLOT
-1365
-189
-1565
-434
+1313
+185
+1513
+430
 Zombies Remaining
 Count
 Ticks
@@ -839,13 +908,13 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -2674135 true "" "plot count zombies with [ is-live ]"
+"default" 1.0 0 -2674135 true "" "plot count dead-zombies"
 
 PLOT
-1578
-191
-1872
-437
+1526
+187
+1820
+433
 Humans Remaining
 Count
 Ticks
@@ -857,114 +926,114 @@ true
 true
 "" ""
 PENS
-"Humans" 1.0 0 -13345367 true "" "plot count humans with [ is-live ]"
-"Sock Humans" 1.0 0 -13840069 true "" "plot count humans with [ (is-live) and (projectile-type = \"sock\") ]"
-"Blaster Humans" 1.0 0 -5825686 true "" "plot count humans with [ (is-live) and (projectile-type = \"blaster\") ]"
+"Humans" 1.0 0 -13345367 true "" "plot count humans"
+"Sock Humans" 1.0 0 -13840069 true "" "plot count humans with [ projectile-type = \"sock\" ]"
+"Blaster Humans" 1.0 0 -5825686 true "" "plot count humans with [ projectile-type = \"blaster\" ]"
 
 MONITOR
-1476
-41
-1589
-86
+1424
+37
+1537
+82
 Humans Dead
-count humans with [ not is-live ]
+count dead-humans
 17
 1
 11
 
 MONITOR
-1476
-86
-1589
-131
+1424
+82
+1537
+127
 Sock Humans Dead
-count humans with [ (not is-live) and (projectile-type = \"sock\") ]
+count dead-humans with [ projectile-type = \"sock\" ]
 17
 1
 11
 
 MONITOR
-1476
-131
-1589
-176
+1424
+127
+1537
+172
 Blaster Humans Dead
-count humans with [ (not is-live) and (projectile-type = \"blaster\") ]
+count dead-humans with [ projectile-type = \"blaster\" ]
 17
 1
 11
 
 MONITOR
-1360
-41
-1476
-86
+1308
+37
+1424
+82
 Humans Alive
-count humans with [ is-live ]
+count humans
 17
 1
 11
 
 MONITOR
-1360
-86
-1476
-131
+1308
+82
+1424
+127
 Sock Humans Alive
-count humans with [ (is-live) and (projectile-type = \"sock\") ]
+count humans with [ projectile-type = \"sock\" ]
 17
 1
 11
 
 MONITOR
-1360
-131
-1476
-176
+1308
+127
+1424
+172
 Blaster Humans Alive
-count humans with [ (is-live) and (projectile-type = \"blaster\") ]
+count humans with [ projectile-type = \"blaster\" ]
 17
 1
 11
 
 MONITOR
-1589
-41
-1701
-86
+1537
+37
+1649
+82
 Fatailty Rate
-count humans with [ ( not is-live) ] / count humans
+count dead-humans / ( count humans + count dead-humans )
 3
 1
 11
 
 MONITOR
-1589
-86
-1701
-131
+1537
+82
+1649
+127
 Sock Fataility Rate
-count humans with [ (not is-live) and (projectile-type = \"sock\") ] / count humans with [ (projectile-type = \"sock\") ]
+count dead-humans with [ projectile-type = \"sock\" ] / ( count humans with [ (projectile-type = \"sock\") ] + count dead-humans with [ (projectile-type = \"sock\") ])
 3
 1
 11
 
 MONITOR
-1589
-131
-1701
-176
+1537
+127
+1649
+172
 Blaster Fataility Rate
-count humans with [ (not is-live) and (projectile-type = \"blaster\") ] / count humans with [ projectile-type = \"blaster\" ]
+count dead-humans with [ projectile-type = \"blaster\" ] / ( count humans with [ projectile-type = \"blaster\" ] + count dead-humans with [ projectile-type = \"blaster\" ] )
 17
 1
 11
 
 SLIDER
 28
-617
+714
 200
-650
+747
 sock-jam-rate
 sock-jam-rate
 0
@@ -976,29 +1045,29 @@ sock-jam-rate
 HORIZONTAL
 
 SLIDER
-245
-612
-417
-645
+238
+713
+410
+746
 dart-jam-rate
 dart-jam-rate
 0
 100
-5.0
+0.5
 1
 1
 %
 HORIZONTAL
 
 CHOOSER
-29
-275
-184
-320
+28
+340
+183
+385
 zombie-attack-style
 zombie-attack-style
 "nearest-human" "targeting-individual"
-1
+0
 
 TEXTBOX
 28
@@ -1021,10 +1090,10 @@ Scenario Settings
 1
 
 TEXTBOX
-30
-250
-180
-274
+29
+315
+179
+339
 AI Settings
 18
 0.0
@@ -1051,20 +1120,20 @@ Player Abillity Settings
 1
 
 TEXTBOX
-33
-420
-183
-442
+31
+522
+181
+544
 Sock Settings
 18
 0.0
 1
 
 TEXTBOX
-245
-419
-395
-441
+238
+521
+388
+543
 Blaster Settings
 18
 0.0
@@ -1073,9 +1142,9 @@ Blaster Settings
 BUTTON
 33
 26
-142
+145
 59
-NIL
+Reset Settings
 reset
 NIL
 1
@@ -1086,6 +1155,46 @@ NIL
 NIL
 NIL
 1
+
+CHOOSER
+28
+464
+166
+509
+human-launch-style
+human-launch-style
+"nearest"
+0
+
+SLIDER
+26
+237
+207
+270
+zombie-charge-clumpness
+zombie-charge-clumpness
+0
+50
+25.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+26
+270
+207
+303
+human-charge-clumpness
+human-charge-clumpness
+0
+50
+25.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
