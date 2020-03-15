@@ -1434,16 +1434,16 @@ The function of all the settings on the interface tab are described below. Defau
 * **show-zombie-targets (true)**: Shows links between zombies and their target humans.
 
 ## Scenario Settings
-* **scenario ("charge")**: Select setup of turtles. Options: "charge", "random".
-* **zombie/human-charge-spread (25)**: Measure of how spread out the turtles are in "charge" scenario. Directly related to standard deviation of a normal function.
+* **scenario ("charge")**: Select setup of humans and zombies. Options: "charge", "random".
+* **zombie/human-charge-spread (25)**: Measure of how spread out the humans and zombies are in "charge" scenario. Directly related to standard deviation of a normal function.
 
 ## AI Settings
 * **zombie-attack-style ("nearest-human")**: Select attack style of zombies.  Options: "nearest-human", "targeting".
 * **human-move-style ("hit-and-run")**: Select movement style of humans. Options: "nearest-zombie", "zone-evasion", "hit-and-run".
-* **human-jammed-move-style ("zone-evasion")**: Select movement style of humans when out of ammo. Options: "nearest-zombie", "zone-evasion", "hit-and-run".
+* **human-jammed-move-style ("zone-evasion")**: Select movement style of a human when out of ammo. Options: "nearest-zombie", "zone-evasion", "hit-and-run".
 * **human-zone-evasion-radius (20) [ft]**: Radius of circle detailing which zombies the human will evade in "zone-evasion" mode. 
 * **human-launch-style ("nearest-zombie-in-range")**: Select launch style of humans. Options: "nearest-zombie-in-range".
-* **sock/dart-launch-range [%]**: Range where human will launch projectile. Defaulted to range of projectile.
+* **sock/dart-launch-range [%]**: Range where a human will launch projectile. Defaulted to range of projectile.
  
 ## Faction Count Settings
 * **num-zombies (50)**: Number of zombies
@@ -1451,18 +1451,18 @@ The function of all the settings on the interface tab are described below. Defau
 * **num-blaster-humans (5)**: Number of blaster humans
 
 ## Player Ability Settings
-* **zombie-speed (20) [ft/s]**: Movement speed of zombies
-* **human-speed (15) [ft/s]**: Movement speed of humans
+* **zombie-speed (20) [ft/s]**: Movement speed of a zombie
+* **human-speed (15) [ft/s]**: Movement speed of a human
 * **zombie-tag-range (2) [ft]**: Distance a zombie can tag a human from
 * **zombie-hitbox-radius (2) [ft]**: Distance a stunning implement can stun a zombie from
 
 ## Sock/Blaster Settings
-* **starting-socks/darts (10/30)**: Number of socks/darts human starts with
-* **sock/dart-speed (35/80) [ft/s]**: Movement speed of socks/darts
-* **sock/dart-range (35/50) [ft]**: Total range of socks/darts
-* **sock/dart-cooldown (1/0.5) [s]**: How long a human must wait to fire sock/dart
-* **sock/dart-inaccuracy (5/25) [degrees]**: Possible range of inaccuracy for sock/dart
-* **sock/dart-jam-rate (0/3) [%]**: How often firing a sock/dart results in a jam
+* **starting-socks/darts (10 / 30)**: Number of socks/darts a human starts with
+* **sock/dart-speed (35 / 80) [ft/s]**: Movement speed of socks/darts
+* **sock/dart-range (35 / 50) [ft]**: Total range of socks/darts
+* **sock/dart-cooldown (1 / 0.5) [s]**: How long a human must wait to fire sock/dart
+* **sock/dart-inaccuracy (5 / 25) [degrees]**: Range of inaccuracy for sock/dart
+* **sock/dart-jam-rate (0 / 3) [%]**: How often firing a sock/dart results in a jam
 
 # CREDITS AND REFERENCES
 
