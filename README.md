@@ -18,5 +18,4 @@ The NetLogo Desktop format is run from a desktop application. To download the ap
 
 The model starts out unloaded. Start by pressing "Reset Simulation". This will setup the agents to run a single simulation. Press "Run Simulation" to run the model. When the simulation is complete, press "Reset Simulation" to revert. Press "Reset Settings" to set settings to default values.
 
-## Simulation Settings
-TBD
+A more thorough tutorial for the model can be found under the INFO tab in the model.
