@@ -16,4 +16,7 @@ To run the simulation locally, start by [downloading the NetLogo application](ht
 
 ## Simulation Tutorial
 
+The simualtion starts out unloaded. Start by pressing "Reset Simulation". This will setup the agents to play the model. Press "Run Simulation" to run the model. When the simulation is complete, press "Reset Simulation" to revert. Press "Reset Settings" to set settings to default values.
+
+## Simulation Settings
 TBD
