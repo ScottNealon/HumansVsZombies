@@ -2,20 +2,20 @@
 ; BREED DEFINITIONS
 ; #################
 
-breed [ humans human ]
-breed [ zombies zombie ]
-breed [ projectiles projectile ]
-breed [ dead-humans dead-human ]
-breed [ dead-zombies dead-zombie ]
-breed [ dead-projectiles dead-projectile ]
+breed [humans human]
+breed [zombies zombie]
+breed [projectiles projectile]
+breed [dead-humans dead-human]
+breed [dead-zombies dead-zombie]
+breed [dead-projectiles dead-projectile]
 
-directed-link-breed [ zombie-targets zombie-target ]
+directed-link-breed [zombie-targets zombie-target]
 
-humans-own [ run-speed move-style projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining projectile-cooldown cooldown-timer jam-rate launch-range jammed ]
-zombies-own [run-speed move-style ]
-projectiles-own [ hit projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining traveled ]
-dead-humans-own [ projectile-type ]
-dead-projectiles-own [ hit projectile-type ]
+humans-own [run-speed move-style edge-avoidance hit-and-run personal-space projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining projectile-cooldown cooldown-timer jam-rate launch-range jammed]
+zombies-own [run-speed move-style]
+projectiles-own [hit projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining traveled]
+dead-humans-own [projectile-type]
+dead-projectiles-own [hit projectile-type]
 
 ; ################
 ; SETUP PROCEDURES
@@ -28,19 +28,23 @@ to reset
   set show-number-projectiles (true)
   set show-zombie-targets (true)
   set real-time (true)
+
   ; Scenario Settings
   set scenario ("charge")
   set human-charge-spread (15)
   set zombie-charge-spread (25)
+
   ; Faction Count Settings
   set num-sock-humans (5)
   set num-blaster-humans (5)
   set num-zombies (50)
+
   ; Faction Abillity Settings
   set human-speed (20)
   set zombie-speed (20)
   set zombie-tag-range (2)
   set zombie-hitbox-radius (2)
+
   ; Sock Settings
   set starting-socks (10)
   set sock-speed (35)
@@ -48,6 +52,7 @@ to reset
   set sock-cooldown (1.5)
   set sock-inaccuracy (5)
   set sock-jam-rate (0)
+
   ; Dart Setings
   set starting-darts (30)
   set dart-speed (80)
@@ -55,13 +60,17 @@ to reset
   set dart-cooldown (1)
   set dart-inaccuracy (25)
   set dart-jam-rate (1)
+
   ; Human AI Settings
   set human-move-style ("hit-and-run")
   set human-jammed-move-style ("nearest-zombie")
+  set human-hit-and-run (true)
   set human-zone-evasion-radius (20)
+  set human-edge-avoidance (5)
   set human-launch-style ("shot-leading")
   set sock-launch-range (20)
   set dart-launch-range (20)
+
   ; Zombie AI Settings
   set zombie-move-style ("nearest-human")
   set horde-target-style ("CG")
@@ -70,31 +79,52 @@ end
 ; Prepares simulation for running
 to setup
   clear-all
+  reset-ticks
+
   ; Setup patches
   ask patches [ set pcolor green ]
+
   ; Setup humans and zombies
   create-humans num-sock-humans [ init-sock-human ]
   create-humans num-blaster-humans [ init-blaster-human ]
   create-zombies num-zombies [ init-zombie ]
+
   ; Places humans and zombies
   place-humans-and-zombies
-  ; Reset ticks to 0
-  reset-ticks
 end
 
-; Places all humans and zombies according to scenario
+; Single method for placing humans and zombies according to scenario
 to place-humans-and-zombies
   (ifelse
-    ; Distribute all humans and zombies according to normal distributions, seperated by a quarter of the field
+
+    ; Distribute according to clumped normal distributions.
     (scenario = "charge") [
-      ask humans [ random-normal-placement (0) (human-charge-spread) (0) (human-charge-spread / 4) ]
-      ask zombies [ random-normal-placement (0) (zombie-charge-spread) (max-pycor * 3 / 4) (zombie-charge-spread / 4) ]
+      ask humans [
+        let x min (list (max-pxcor) (max (list (min-pxcor)
+          (random-normal (0) (human-charge-spread))
+        ) ) )
+        let y min (list (max-pycor) (max (list (min-pycor)
+          (random-normal (0) (human-charge-spread / 4))
+        ) ) )
+        setxy (x) (y)
+      ]
+      ask zombies [
+        let x min (list (max-pxcor) (max (list (min-pxcor)
+          (random-normal (0) (zombie-charge-spread))
+        ) ) )
+        let y min (list (max-pycor) (max (list (min-pycor)
+          (random-normal (3 / 4 * max-pycor) (zombie-charge-spread / 4))
+        ) ) )
+        setxy (x) (y)
+      ]
     ]
-    ; Distributes all humans and zombies randomly.
+
+    ; Distributes randomly
     (scenario = "random") [
       ask humans [setxy random-xcor random-ycor]
       ask zombies [setxy random-xcor random-ycor]
     ]
+
   )
 end
 
@@ -104,21 +134,22 @@ end
 
 ; Creates a human
 to init-human
-  set shape "person"
-  set size patch-size ; 1 foot (think top of head)
+  set shape ("person")
+  set size (1.5 * patch-size) ; 1.5 foot (think top down)
   set run-speed (human-speed / ticks-per-second)
   set move-style (human-move-style)
-  set cooldown-timer 0
-  set jammed false
-  ifelse show-number-projectiles
-  [ set label projectiles-remaining ]
-  [ set label "" ]
+  set edge-avoidance (human-edge-avoidance)
+  set hit-and-run (human-hit-and-run)
+  set personal-space (human-personal-space)
+  set cooldown-timer (0)
+  set jammed (false)
+  ifelse show-number-projectiles [set label projectiles-remaining] [set label ""]
 end
 
 ; Creates a sock human
 to init-sock-human
-  set projectile-type "sock"
-  set color blue + 1
+  set projectile-type ("sock")
+  set color (blue + 1)
   set projectile-range (sock-range)
   set projectile-speed (sock-speed / ticks-per-second)
   set projectile-inaccuracy (sock-inaccuracy)
@@ -131,54 +162,54 @@ end
 
 ; Creates a blaster human
 to init-blaster-human
-  set projectile-type "blaster"
-  set color blue
+  set projectile-type ("blaster")
+  set color (blue)
   set projectile-range (dart-range)
   set projectile-speed (dart-speed / ticks-per-second)
   set projectile-inaccuracy (dart-inaccuracy)
   set projectiles-remaining (starting-darts)
   set projectile-cooldown (dart-cooldown)
-  set jam-rate (dart-jam-rate) / 100
+  set jam-rate (dart-jam-rate / 100)
   set launch-range (dart-launch-range)
   init-human
 end
 
 ; Creates a zombie
 to init-zombie
-  set shape "person"
-  set size patch-size ; 1 foot (think top of head)
-  set color red
+  set shape ("person")
+  set size (1.5 * patch-size) ; 1.5 foot (think top down)
+  set color (red)
   set run-speed (zombie-speed / ticks-per-second)
   set move-style (zombie-move-style)
 end
 
 ; Creates a projectile
 to init-projectile
-  set shape "circle"
-  set size 0.25 * patch-size ; 0.25 ft
-  set color yellow
+  set shape ("circle")
+  set size (0.25 * patch-size) ; 0.25 ft
+  set color (yellow)
   set hit (false)
-  set traveled 0
-  rt ((random projectile-inaccuracy) - projectile-inaccuracy / 2) ; Randomly turn +/-(inacccuracy/2)
-  set label ""
+  set traveled (0)
+  rt (random-normal (0) (projectile-inaccuracy))
+  set label ("") ; Required to overwrite human hatch procedure
 end
 
 ; Create dead human
 to init-dead-human
-  set shape "person"
-  set color blue - 3
+  set shape ("person")
+  set color (blue - 3)
 end
 
 ; Create dead zombie
 to init-dead-zombie
-  set shape "person"
-  set color red - 3
+  set shape ("person")
+  set color (red - 3)
 end
 
 ; Create dead projectile
 to init-dead-projectile
-  set shape "circle"
-  set color yellow - 3
+  set shape ("circle")
+  set color (yellow - 3)
 end
 
 ; ##############
@@ -187,18 +218,23 @@ end
 
 ; Function repeats until end
 to go
+
   ; Resets time for loop
   reset-timer
-  ; If there are no humans or no zombies, stop.
-  if (count (humans) = 0) or (count (zombies) = 0) [ stop ]
+
   ; Ask each breed to perform their actions, presuming there are enemies remaining
-  ask zombies [ if count (humans) > 0 [ zombie-ai ] ]
-  ask humans [ if count (zombies) > 0 [ human-ai ] ]
-  ask projectiles [ if count (zombies) > 0 [ projectile-ai ] ]
-  ; If real time, Loops until timer runs out
-  if (real-time) [ while [ timer < (1 / ticks-per-second) ] [ ] ]
+  ask zombies [if (count (humans) > 0) [zombie-ai]]
+  ask humans [if (count (zombies) > 0) [human-ai]]
+  ask projectiles [if (count (zombies) > 0) [projectile-ai]]
+
+  ; If there are no humans or no zombies, stop.
+  if ((count (humans) = 0) or (count (zombies) = 0)) [stop]
+
   ; Iterate
   tick
+
+  ; If real time, Loops until timer runs out
+  if (real-time) [while [timer < (1 / ticks-per-second)] [ ]]
 end
 
 ; ################
@@ -214,49 +250,70 @@ end
 
 ; Human moves according to movement mode
 to human-move
-  (ifelse
-    (move-style = "nearest-zombie") [ human-move-nearest-zombie ]
-    (move-style = "zone-evasion") [ human-move-zone-evasion ]
-    (move-style = "anti-gravity") [ human-move-anti-gravity ]
-    (move-style = "hit-and-run") [ human-move-hit-and-run ]
-  )
-end
 
-; Human moves directly away from nearest zombie
-to human-move-nearest-zombie
-  let nearest-zombie (min-one-of zombies [distance myself])
-  face nearest-zombie
-  rt 180
+  ; Move according to move style.
+  let delta (ifelse-value
+    (move-style = "nearest-zombie") [human-move-nearest-zombie]
+    (move-style = "zone-evasion") [human-move-zone-evasion]
+    (move-style = "anti-gravity") [human-move-anti-gravity]
+  )
+
+  ; If human should be advancing, swap directions.
+  let advance ((hit-and-run) and (distance (min-one-of zombies [distance myself]) >= 0.9 * launch-range)) ; Set to 0.9 to ensure within launch range. TODO update
+  let delta-x (ifelse-value (advance) [0 - item (0) (delta)] [item (0) (delta)])
+  let delta-y (ifelse-value (advance) [0 - item (1) (delta)] [item (1) (delta)])
+
+  ; Identify edge avoidance
+  let delta-x-edge (edge-avoidance * (1 / (xcor - min-pxcor) - 1 / (max-pxcor - xcor)))
+  let delta-y-edge (edge-avoidance * (1 / (ycor - min-pycor) - 5 / (max-pycor - ycor)))
+
+  ; Identify anti-clumping
+  let xcg (sum [(xcor - [xcor] of myself) / distance (myself) ^ 3] of other humans)
+  let ycg (sum [(ycor - [ycor] of myself) / distance (myself) ^ 3] of other humans)
+  let delta-x-anti-clumping (- personal-space * xcg / sqrt (xcg ^ 2 + ycg ^ 2))
+  let delta-y-anti-clumping (- personal-space * ycg / sqrt (xcg ^ 2 + ycg ^ 2))
+
+  ; Face and move
+  facexy (xcor + delta-x + delta-x-edge + delta-x-anti-clumping) (ycor + delta-y + delta-y-edge + delta-y-anti-clumping)
   fd run-speed
 end
 
+; Human moves directly away from nearest zombie
+to-report human-move-nearest-zombie
+  let nearest-zombie (min-one-of zombies [distance myself])
+  report (list
+    ((xcor - [xcor] of nearest-zombie) / distance nearest-zombie)
+    ((ycor - [ycor] of nearest-zombie) / distance nearest-zombie)
+  )
+end
+
 ; Human moves away from center-of-mass of nearby zombies.
-to human-move-zone-evasion
-  ; Select all zombies within radius
+to-report human-move-zone-evasion
+
+  ; If there are any zombies in range, identify avoidance patter.
   let zone-zombies zombies in-radius human-zone-evasion-radius
-  if any? zone-zombies [
-    let xy (agentset-center-of-mass (zombies))
-    ; Face CG then turn around and run
-    facexy (item 0 xy) (item 1 xy)
-    rt 180
-    fd run-speed
+  ifelse any? zone-zombies [
+    let xcg (xcor - mean ([xcor] of zone-zombies))
+    let ycg (ycor - mean ([ycor] of zone-zombies))
+    report (list
+      (xcg / sqrt (xcg ^ 2 + ycg ^ 2))
+      (ycg / sqrt (xcg ^ 2 + ycg ^ 2))
+    )
+  ]
+
+  [ ; If there are not any zombies in range, avoid nearest zombie.
+    report human-move-nearest-zombie
   ]
 end
 
 ; Human moves away from zombies like they were each producing an anti-gravity field
-to human-move-anti-gravity
-  let x (sum [ ( xcor - [xcor] of myself ) / distance (myself) ^ 3 ] of zombies) ; Cubed to normalize xcord
-  let y (sum [ ( ycor - [ycor] of myself ) / distance (myself) ^ 3 ] of zombies) ; Cubed to normalize ycord
-  facexy (xcor - x) (ycor - y)
-  fd run-speed
-end
-
-; Human moves towards zombies if they are out of range and away if they are in range
-to human-move-hit-and-run
-  let nearest-zombie (min-one-of zombies [ distance myself ])
-  ; Face zombie. Then move forwards or backwards to set distance (nearest-zombie) = launch-range
-  face nearest-zombie
-  fd min (list (run-speed) (max (list (- run-speed) ( distance (nearest-zombie) - launch-range ) ) ) )
+to-report human-move-anti-gravity
+  let x-grav (sum [(xcor - [xcor] of myself) / distance (myself) ^ 3] of zombies) ; Cubed to normalize xcord
+  let y-grav (sum [(ycor - [ycor] of myself) / distance (myself) ^ 3] of zombies) ; Cubed to normalize ycord
+  report (list
+    (- x-grav / sqrt (x-grav ^ 2 + y-grav ^ 2))
+    (- y-grav / sqrt (x-grav ^ 2 + y-grav ^ 2))
+  )
 end
 
 ; Human shoots according to shooting mode
@@ -264,8 +321,8 @@ to human-launch
   ; Only execute if cooldown is over and projectiles remain.
   if (cooldown-timer <= 0) and (projectiles-remaining > 0) and (not jammed) [
     (ifelse
-      (human-launch-style = "nearest-zombie") [ human-launch-nearest-zombie ]
-      (human-launch-style = "shot-leading") [ human-launch-shot-leading ]
+      (human-launch-style = "nearest-zombie") [human-launch-nearest-zombie]
+      (human-launch-style = "shot-leading") [human-launch-shot-leading]
       ; TODO Add more launch styles
     )
   ]
@@ -428,8 +485,9 @@ to zombie-pick-horde-target
       ask zombies [ create-zombie-target-to ([horde-target] of myself) ]
     ]
     (horde-target-style = "CG") [
-      let horde-CG (agentset-center-of-mass (zombies))
-      let horde-target min-one-of humans [ distancexy ([item (0) (horde-CG) ] of myself) ([item (1) (horde-CG) ] of myself) ]
+      let xcg mean ([xcor] of zombies)
+      let ycg mean ([ycor] of zombies)
+      let horde-target min-one-of humans [ distancexy ([xcg] of myself) ([ycg] of myself) ]
       ask zombies [ create-zombie-target-to ([horde-target] of myself) ]
     ]
     (horde-target-style = "nearest-human") [
@@ -464,12 +522,8 @@ end
 ; UTILITY PROCEDURES
 ; ##################
 
-to-report agentset-center-of-mass [agentset]
-  let xcg mean ([xcor] of agentset )
-  let ycg mean ([ycor] of agentset )
-  report list (xcg) (ycg)
-end
-
+; Reports the minimum distance from a point {x, y} to a line starting at {0, 0} at an angle of h.
+; Uses NetLogo's angle system {sin(theta), cos(theta)} as opposed to standard angles with {cos(theta), sin(theta)}.
 to-report distance-from-line [x y h]
   report sqrt( ((xcor - x) - sin(h) * ((ycor - y) * cos(h) + (xcor - x) * sin(h))) ^ 2 + ((ycor - y) - cos(h) * ((ycor - y) * cos(h) + (xcor - x) * sin(h))) ^ 2)
 end
@@ -699,14 +753,14 @@ CHOOSER
 146
 human-move-style
 human-move-style
-"nearest-zombie" "zone-evasion" "anti-gravity" "hit-and-run"
-3
+"nearest-zombie" "zone-evasion" "anti-gravity"
+1
 
 SLIDER
 433
-193
+227
 630
-226
+260
 human-zone-evasion-radius
 human-zone-evasion-radius
 0
@@ -1147,9 +1201,9 @@ HORIZONTAL
 
 CHOOSER
 433
-373
+475
 630
-418
+520
 zombie-move-style
 zombie-move-style
 "nearest-human" "horde-target"
@@ -1244,9 +1298,9 @@ NIL
 
 CHOOSER
 433
-227
+329
 630
-272
+374
 human-launch-style
 human-launch-style
 "nearest-zombie" "shot-leading"
@@ -1304,9 +1358,9 @@ human-jammed-move-style
 
 SLIDER
 433
-273
+375
 630
-306
+408
 sock-launch-range
 sock-launch-range
 0
@@ -1319,9 +1373,9 @@ HORIZONTAL
 
 SLIDER
 433
-307
+409
 630
-340
+442
 dart-launch-range
 dart-launch-range
 0
@@ -1389,9 +1443,9 @@ real-time
 
 CHOOSER
 433
-419
+521
 630
-464
+566
 horde-target-style
 horde-target-style
 "random" "CG" "nearest-human"
@@ -1417,54 +1471,110 @@ PENS
 
 TEXTBOX
 433
-347
+449
 611
-372
+474
 Zombie AI Settings
 18
 0.0
 1
+
+SLIDER
+433
+261
+630
+294
+human-edge-avoidance
+human-edge-avoidance
+0
+10
+5.0
+0.1
+1
+NIL
+HORIZONTAL
+
+SWITCH
+433
+193
+630
+226
+human-hit-and-run
+human-hit-and-run
+0
+1
+-1000
+
+SLIDER
+433
+295
+630
+328
+human-personal-space
+human-personal-space
+0
+1
+0.05
+0.01
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 # HUMANS VS ZOMBIES
 
 # TO DO LIST
 
-## Run model from external source
-#### Description
-Using a design of experiements, likely set up in a csv file, run simulations and output to file for statistical analysis.
-
 ## Implement realistic movement
 #### Description
-Currently, humans and zombies move at up to their max run-speed in any direction. In reality, it takes time to change speed and direction.
+Currently, humans and zombies move at up to their max run-speed in any direction. In reality, it takes time to change speed and direction. Goal is to implement a movement system that accurately mimics human movement.
 #### Challenges
 * Finding literature on how quickly people can move in different directions
 * Implmenting velocity and acceleration
 
 ## Implement realistic targeting
 #### Description
-Currently, humans can fire in any direction on a dime. In reality, blaster users have a significant disadvantage compared to sock users do to the challenge of shooting behind them.
+Currently, humans can fire in any direction on a dime. In reality, blaster users have a significant disadvantage compared to sock users do to the challenge of shooting behind them. Goal is to implement some form of shooting delay required to aim and shoot.
 #### Potential solutions
 * Implementing "firing arcs" and "turret heading" that reset every time a shot is fired.
 
 ## Implement realistic awareness
 #### Description
-Currently, humans and zombies are aware of all other humans and zombies. In reality, people have blind spots.
+Currently, humans and zombies are aware of all other humans and zombies. In reality, people have blind spots. Goal is to implement some form of "awareness" for humans.
 
 ## Make world resizale with resize-world and set-patch-size
+Currently, the world size is fixed to about 1/4 the size of Tech Green. There may be good reason to implement a more dynamic world sizing mechanic.
 #### Challenges
 * Changes size of world in interface
 #### Potential Solutions
-* Make categorical work sizes. Don't give those pesty users full control.
+* Make categorical world sizes. Don't give those pesty users full control.
 
-## Make players not stick to walls
+## Make humans not stick to walls
+Currently, when a human or zombie attemps to run through the edge of the world, it stops them. However, the logic does not then result in them curving around the world edge. 
+#### Challenges
+* When running towards a cornor, the human should curve around and keep going along the edge of the world. Obvious solutions would likely not result in this behavior.
 #### Potential Solutions
 * Implementing a "deterance" from being close to the wall
 * May use "can-move?"
+* Centerwise bias proportional to distance to edge.
 
 ## Implement more sophisticated zombie AI
 #### Potential Solutions
 * Look into "Birb" flocking mechanics 
+
+## Consider swapping how you count humans
+#### Description
+Currently, there is a count for num-sock-humans and num-blaster-humans. Instead, consider replacing it with num-humans and percent-blaster.
+#### Challenges
+* If a new human type is added, like hybrid blaster/sock users, it may complicate sliders.
+
+## Implement humans and zombies of variable abillity and methods
+#### Description
+Currently, all humans and zombies have identical abillities. Implement randomness to abillities and procedures.
+#### Potential solutions
+* Implement set of "weighting" sliders for different procedures.
+* Have some players be "Vets", making a clear distinction between low and high tier.
+* Alternativly, classify the top 20% of players as vets.
 
 # MODEL DESCRIPTION
 
@@ -1664,6 +1774,9 @@ For full description of procedures, see ZOMBIE section.
 * **zombie-move-style (`hit-and-run`)**: Select move style of zombies.  Options: `nearest-human`, `targeting`.
 * **horde-target-style (`CG`)**: Select horde target style. Options: `random`, `CG`, `nearest-human`.
 
+# RUNNING EXPERIMENTS
+
+Experiements are run using NetLogo's built in BehaviorSpace. For a further detail of how to use BehaviorSpace, check out the [BehaviorSpace Documentation](http://ccl.northwestern.edu/netlogo/docs/behaviorspace.html).
 
 # CREDITS AND REFERENCES
 
@@ -1981,6 +2094,24 @@ NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="Blaster Survival Rates" repetitions="50" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <metric>count humans</metric>
+    <enumeratedValueSet variable="ticks-per-second">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="real-time">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="num-sock-humans">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="num-blaster-humans" first="5" step="5" last="30"/>
+    <steppedValueSet variable="num-zombies" first="1" step="1" last="100"/>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
