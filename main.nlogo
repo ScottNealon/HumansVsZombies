@@ -85,7 +85,7 @@ to place-humans-and-zombies
     ; Distribute all humans and zombies according to normal distributions, seperated by a quarter of the field
     (scenario = "charge") [
       ask humans [ random-normal-placement (0) (human-charge-spread) (0) (human-charge-spread / 4) ]
-      ask zombies [ random-normal-placement (0) (zombie-charge-spread) (max-pycor / 2) (zombie-charge-spread / 4) ]
+      ask zombies [ random-normal-placement (0) (zombie-charge-spread) (max-pycor * 3 / 4) (zombie-charge-spread / 4) ]
     ]
     ; Distributes all humans and zombies randomly.
     (scenario = "random") [
@@ -751,9 +751,9 @@ count projectiles + count dead-projectiles
 
 MONITOR
 1236
-62
+63
 1311
-107
+108
 Shots Hit
 count dead-projectiles with [ hit ]
 17
@@ -761,35 +761,36 @@ count dead-projectiles with [ hit ]
 11
 
 MONITOR
-1386
-107
-1460
-152
+1388
+155
+1463
+200
 Dart Hit Rate
-(count dead-projectiles with [ (hit) and (projectile-type = \"blaster\") ]) / ( count projectiles with [ projectile-type = \"blaster\" ] + count dead-projectiles with [ projectile-type = \"blaster\" ])
+count dead-projectiles with [ (hit) and (projectile-type = \"blaster\") ] / count dead-projectiles with [ projectile-type = \"blaster\" ]
 3
 1
 11
 
 PLOT
 1238
-163
+214
 1575
-411
+462
 Projectiles
-Ticks
-Count
+Time (s)
+Projectiles
 0.0
-10.0
+0.1
 0.0
-10.0
+0.1
 true
 true
 "" ""
 PENS
-"Projectiles Fired" 1.0 0 -13345367 true "" "plot (count projectiles + count dead-projectiles)"
-"Projectiles Hit" 1.0 0 -2674135 true "" "plot count dead-zombies"
-"Projectiles Remaining" 1.0 0 -7500403 true "" "plot sum ([projectiles-remaining] of humans)"
+"Projectiles Fired" 1.0 0 -13345367 true "" "plotxy (ticks / ticks-per-second) (count projectiles + count dead-projectiles)"
+"Projectiles Hit" 1.0 0 -2674135 true "" "plotxy (ticks / ticks-per-second) (count dead-projectiles with [ hit ])"
+"Projectiles Missed" 1.0 0 -7500403 true "" "plotxy (ticks / ticks-per-second) (count dead-projectiles with [ not hit ])"
+"Projectiles In Air" 1.0 0 -955883 true "" "plotxy (ticks / ticks-per-second) (count projectiles)"
 
 SLIDER
 228
@@ -882,9 +883,9 @@ degrees
 HORIZONTAL
 
 MONITOR
-1384
+1388
 17
-1458
+1463
 62
 Darts Fired
 count projectiles with [ projectile-type = \"blaster\" ] + count dead-projectiles with [ projectile-type = \"blaster\" ]
@@ -893,9 +894,9 @@ count projectiles with [ projectile-type = \"blaster\" ] + count dead-projectile
 11
 
 MONITOR
-1309
+1312
 17
-1384
+1387
 62
 Socks Fired
 count projectiles with [ projectile-type = \"sock\" ] + count dead-projectiles with [ projectile-type = \"sock\" ]
@@ -904,10 +905,10 @@ count projectiles with [ projectile-type = \"sock\" ] + count dead-projectiles w
 11
 
 MONITOR
-1385
-62
-1458
-107
+1388
+63
+1463
+108
 Darts Hit
 count dead-projectiles with [ (hit) and (projectile-type = \"blaster\") ]
 17
@@ -915,10 +916,10 @@ count dead-projectiles with [ (hit) and (projectile-type = \"blaster\") ]
 11
 
 MONITOR
-1310
-62
-1385
-107
+1312
+63
+1387
+108
 Socks Hit
 count dead-projectiles with [ (hit) and ( projectile-type = \"sock\" ) ]
 17
@@ -926,70 +927,70 @@ count dead-projectiles with [ (hit) and ( projectile-type = \"sock\" ) ]
 11
 
 MONITOR
-1310
-107
-1386
-152
+1312
+155
+1387
+200
 Sock Hit Rate
-(count dead-projectiles with [ (hit) and (projectile-type = \"sock\") ]) / ( count projectiles with [ projectile-type = \"sock\" ] + count dead-projectiles with [ projectile-type = \"sock\" ] )
+count dead-projectiles with [ (hit) and (projectile-type = \"sock\") ] / count dead-projectiles with [ projectile-type = \"sock\" ]
 3
 1
 11
 
 MONITOR
 1236
-107
-1310
-152
+155
+1311
+200
 Hit Rate
-(count dead-projectiles with [ hit ]) / ( count projectiles + count dead-projectiles )
+count dead-projectiles with [ hit ] / count dead-projectiles
 3
 1
 11
 
 PLOT
 1586
-415
+466
 1876
-660
+711
 Zombies Remaining
-Ticks
-Count
+Time (s)
+Zombies
 0.0
-10.0
+0.1
 0.0
-10.0
+0.1
 true
 false
 "" ""
 PENS
-"default" 1.0 0 -2674135 true "" "plot count zombies"
+"default" 1.0 0 -2674135 true "" "plotxy (ticks / ticks-per-second) (count zombies)"
 
 PLOT
 1584
-164
+215
 1878
-410
+461
 Humans Remaining
-Ticks
-Count
+Time (s)
+Humans
 0.0
-10.0
+0.1
 0.0
-10.0
+0.1
 true
 true
 "" ""
 PENS
-"Humans" 1.0 0 -13345367 true "" "plot count humans"
-"Sock Humans" 1.0 0 -13840069 true "" "plot count humans with [ projectile-type = \"sock\" ]"
-"Blaster Humans" 1.0 0 -5825686 true "" "plot count humans with [ projectile-type = \"blaster\" ]"
+"Humans" 1.0 0 -13345367 true "" "plotxy (ticks / ticks-per-second) (count humans)"
+"Sock Humans" 1.0 0 -13840069 true "" "plotxy (ticks / ticks-per-second) ( count humans with [ projectile-type = \"sock\" ] )"
+"Blaster Humans" 1.0 0 -5825686 true "" "plotxy (ticks / ticks-per-second) ( count humans with [ projectile-type = \"blaster\" ] )"
 
 MONITOR
-1616
-19
-1729
-64
+1587
+18
+1700
+63
 Humans Dead
 count dead-humans
 17
@@ -997,9 +998,9 @@ count dead-humans
 11
 
 MONITOR
-1616
+1587
 64
-1729
+1700
 109
 Sock Humans Dead
 count dead-humans with [ projectile-type = \"sock\" ]
@@ -1008,10 +1009,10 @@ count dead-humans with [ projectile-type = \"sock\" ]
 11
 
 MONITOR
-1616
-109
-1729
-154
+1587
+110
+1700
+155
 Blaster Humans Dead
 count dead-humans with [ projectile-type = \"blaster\" ]
 17
@@ -1019,10 +1020,10 @@ count dead-humans with [ projectile-type = \"blaster\" ]
 11
 
 MONITOR
-1500
-19
-1616
-64
+1470
+18
+1586
+63
 Humans Alive
 count humans
 17
@@ -1030,9 +1031,9 @@ count humans
 11
 
 MONITOR
-1500
+1470
 64
-1616
+1586
 109
 Sock Humans Alive
 count humans with [ projectile-type = \"sock\" ]
@@ -1041,10 +1042,10 @@ count humans with [ projectile-type = \"sock\" ]
 11
 
 MONITOR
-1500
-109
-1616
-154
+1470
+110
+1586
+155
 Blaster Humans Alive
 count humans with [ projectile-type = \"blaster\" ]
 17
@@ -1052,10 +1053,10 @@ count humans with [ projectile-type = \"blaster\" ]
 11
 
 MONITOR
-1729
-19
-1841
-64
+1701
+18
+1813
+63
 Fatailty Rate
 count dead-humans / ( count humans + count dead-humans )
 3
@@ -1063,9 +1064,9 @@ count dead-humans / ( count humans + count dead-humans )
 11
 
 MONITOR
-1729
+1701
 64
-1841
+1813
 109
 Sock Fataility Rate
 count dead-humans with [ projectile-type = \"sock\" ] / ( count humans with [ (projectile-type = \"sock\") ] + count dead-humans with [ (projectile-type = \"sock\") ])
@@ -1074,10 +1075,10 @@ count dead-humans with [ projectile-type = \"sock\" ] / ( count humans with [ (p
 11
 
 MONITOR
-1729
-109
-1841
-154
+1701
+110
+1813
+155
 Blaster Fataility Rate
 count dead-humans with [ projectile-type = \"blaster\" ] / ( count humans with [ projectile-type = \"blaster\" ] + count dead-humans with [ projectile-type = \"blaster\" ] )
 17
@@ -1219,7 +1220,7 @@ CHOOSER
 human-launch-style
 human-launch-style
 "nearest-zombie" "shot-leading"
-0
+1
 
 SLIDER
 10
@@ -1311,6 +1312,39 @@ show-zombie-targets
 0
 1
 -1000
+
+MONITOR
+1236
+109
+1311
+154
+Shots Missed
+count dead-projectiles with [ not hit ]
+17
+1
+11
+
+MONITOR
+1312
+109
+1387
+154
+Socks Missed
+count dead-projectiles with [ (not hit) and (projectile-type = \"sock\") ]
+17
+1
+11
+
+MONITOR
+1388
+109
+1463
+154
+Darts Missed
+count dead-projectiles with [ (not hit) and (projectile-type = \"blaster\") ]
+17
+1
+11
 
 @#$#@#$#@
 # HUMANS VS ZOMBIES
