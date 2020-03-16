@@ -39,6 +39,7 @@ to reset
   set sock-launch-range (35)
   set dart-launch-range (50)
   set zombie-move-style ("nearest-human")
+  set horde-target-style ("CG")
   set num-sock-humans (5)
   set num-blaster-humans (5)
   set num-zombies (50)
@@ -374,14 +375,14 @@ end
 to zombie-move
   (ifelse
     (move-style = "nearest-human") [ zombie-move-nearest-human ]
-    (move-style = "targeting") [ zombie-move-targeting ]
+    (move-style = "horde-target") [ zombie-move-horde-target ]
   )
 end
 
 ; Zombie finds nearest human and runs at them
 to zombie-move-nearest-human
   let nearest-human (min-one-of humans [distance myself])
-  ; If there is not a link with the nearest human, kill all links and create one
+  ; If there is not a link with the nearest human, kill my links and create one to nearest human
   if not (zombie-target-neighbor? nearest-human)[
     ask my-zombie-targets [ die ]
     create-zombie-target-to nearest-human
@@ -392,22 +393,43 @@ to zombie-move-nearest-human
 end
 
 ; All zombies pick a single target and chases them
-to zombie-move-targeting
-  ; If there is no target, pick a new horde target
-  ; TODO: Pick human closest to Horde center of gravity
-  ; TODO: Pick human closest to any zombie
-  if ( count (zombie-target-neighbors) = 0 ) [ pick-new-horde-target ]
+to zombie-move-horde-target
+  ; If there is no target, create one if it is the first tick.
+  if ( count (zombie-target-neighbors) = 0) [
+    ifelse ( ticks = 0 ) [
+      zombie-pick-horde-target
+    ]
+    [ ; Otherwise, revert to nearest-human.
+      ask zombies [
+        set move-style ("nearest-human")
+        create-zombie-target-to (min-one-of humans [distance myself])
+      ]
+    ]
+  ]
   ; Face zombie-target and charge them
   face one-of zombie-target-neighbors
   fd run-speed
 end
 
-; Horde selects a single target randomly and charges them
-to pick-new-horde-target
-  ask zombie-targets [ die ]
-  let horde-target one-of humans
-  ask zombies [ create-zombie-target-to ([horde-target] of myself) ]
+; Pick horde target according to target-style
+to zombie-pick-horde-target
+  (ifelse
+    (horde-target-style = "random") [
+      let horde-target one-of humans
+      ask zombies [ create-zombie-target-to ([horde-target] of myself) ]
+    ]
+    (horde-target-style = "CG") [
+      let horde-CG (agentset-center-of-mass (zombies))
+      let horde-target min-one-of humans [ distancexy ([item (0) (horde-CG) ] of myself) ([item (1) (horde-CG) ] of myself) ]
+      ask zombies [ create-zombie-target-to ([horde-target] of myself) ]
+    ]
+    (horde-target-style = "nearest-human") [
+      let horde-target min-one-of humans [ distance ( min-one-of zombies [ distance myself ] ) ]
+      ask zombies [ create-zombie-target-to ([horde-target] of myself) ]
+    ]
+  )
 end
+
 
 ; Kills target if in range
 to zombie-tag
@@ -655,7 +677,7 @@ ticks-per-second
 ticks-per-second
 1
 100
-100.0
+30.0
 1
 1
 ticks/s
@@ -1122,7 +1144,7 @@ CHOOSER
 706
 zombie-move-style
 zombie-move-style
-"nearest-human" "targeting"
+"nearest-human" "horde-target"
 0
 
 TEXTBOX
@@ -1357,6 +1379,16 @@ real-time
 1
 -1000
 
+CHOOSER
+12
+707
+209
+752
+horde-target-style
+horde-target-style
+"random" "CG" "nearest-human"
+1
+
 @#$#@#$#@
 # HUMANS VS ZOMBIES
 
@@ -1408,11 +1440,11 @@ To best visualize the discrete, ordered nature of the simulation, set "view upda
 
 The model starts the simulation by creating and placing the humans and zombies. The humans and zombies are placed according to *scenario*. There are two scenarios currently implemented: `charge` and `random`.
 
-#### Scenario: Charge
+#### Scenario: `charge`
 
 Humans and zombies are set up on in two separate clumps according to a normal distribution. The zombies are set up around the point `(0, max-xcor / 2)` while the humans are set up around the point `(0, 0)`. The standard deviation of the distribution in the x direction is given as `zombie/human-charge-spread` while the y direction is given as `zombie/human-charge-spread / 4`. This difference in standard deviations creates the "gun-line" spread normally experienced in charges.
 
-#### Scenario: Random
+#### Scenario: `random`
 
 Humans and zombies are set up at completely random x and y coordinates. This could be used to simulate a chaotic encounter without structure. 
 
@@ -1431,15 +1463,15 @@ Humans move according to procedure defined by `human-move-style`. There are thre
 
 If a human runs out of ammo or is jammed, they update their `move-style` to the move style defined by `human-jammed-move-style`.
 
-#### Human Move Style: nearest-zombie
+#### Human Move Style: `nearest-zombie`
 
 The human moves directly away from the nearest zombie. 
 
-#### Human Move Style: zone-evasion
+#### Human Move Style: `zone-evasion`
 
 The human identifies all zombies within a radius defined by `human-zone-evasion-radius` and moves directly away from the center of mass of the zombies.
 
-#### Human Move Style: hit-and-run
+#### Human Move Style: `hit-and-run`
 
 The human moves to keep the nearest zombie at a distance equivalent to `launch-range`. The human moves backward or forwards until the nearest zombie is exactly on the launch range.
 
@@ -1464,11 +1496,11 @@ Each human is assigned a `jam-rate` according to their projectile type. The jam 
 
 A `jam-rate` of 5% corresponds to a jam on average every 12.5 shots while a `jam-rate` of 1% corresponds to a jam on average every 68.0 shots. The equation for average number of shots before jam for a given jam rate is `shots = ( ln(0.5) / ln(1 - jam-rate) ) - 1`. This equation is the inverse of the geometric cumulative distribution function.
 
-#### Human Launch Style: nearest-zombie
+#### Human Launch Style: `nearest-zombie`
 
 The human will identify the closest zombie that is within `launch-range`. If there exists a zombie within this range, the human will launch a projectile at its current location. If not, the human will not launch a projectile. This procedure uses `launch-range` instead of `projectile-range` to allow for finer tuning of shot doctrine.
 
-#### Human Launch Style: shot-leading
+#### Human Launch Style: `shot-leading`
 
 The human will identify the closest zombie. The human will identify the `impact-time`, location (`xt` and `yt`), and direction (`theta`) of hitting the closest zombie if they do not change their direction. If the distance is within `launch-range`, the human will alunch a projectile at the impact location. If not, the human will not launch a projectile.
 
@@ -1481,19 +1513,25 @@ During each iteration, zombies follow the following procedure:
 
 ### Zombie Targets
 
-A core mechanic for the zombie is its `zombie-target` link. A zombie target link is a directional link between the zombie and a human that it is currently targeting. Currently, zombie target links are created in the movement procedures according to `zombie-move-style`.
+At the moment, all zombie move styles use a mechanic for identifying its target using a `zombie-target` link. A zombie target link is a directional link between the zombie and a human that it is currently targeting. Currently, zombie target links are created in the movement procedures according to `zombie-move-style`.
 
 ### Zombie Movement
 
 Zombies move according to procedure defined by `zombie-move-style`. There are two move styles currently implemented: `nearest-human` and `targeting`.
 
-#### Zombie Move Style: Nearest Human
+#### Zombie Move Style: `nearest-human`
 
 The zombie will identify the closest human. The closes human will be set as the zombie's only `zombie-target` link. The zombie will move directly towards the closest human.
 
-#### Zombie Move Style: Targeting
+#### Zombie Move Style: `horde-targeting`
 
-A single human will be randomly identified as the targeted human of every single zombie. All zombies will create a `zombie-target` link with this single human. When this human is tagged, a new target will be randomly chosen and process is repeated.
+A single human will be identified as the horde target according to procedure defined by `horde-target-style`. All zombies will create a `zombie-target` link with this single human. When this human is tagged, zombies will revert to `nearest-human` move style. There are three targeting styles currently implemented: `random`, `CG`, and `nearest-human`.
+
+* `random`: The horde target will be chosen at random from all available humans.
+
+* `CG`: The human closest to the "center of gravity" of the horde will be chosen as the horde target.
+
+* `nearest-human`: The human closest to any given zombie will be chosen as the horde target.
 
 ### Zombie Tagging
 
