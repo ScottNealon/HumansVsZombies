@@ -39,7 +39,7 @@ to reset
   set human-move-style ("hit-and-run")
   set human-jammed-move-style ("zone-evasion")
   set human-zone-evasion-radius (20)
-  set human-launch-style ("nearest-zombie-in-range")
+  set human-launch-style ("shot-leading")
   set sock-launch-range (35)
   set dart-launch-range (50)
   set zombie-move-style ("nearest-human")
@@ -187,9 +187,9 @@ to go
   ; If there are no humans or no zombies, stop.
   if (count (humans) = 0) or (count (zombies) = 0) [ stop ]
   ; Ask each breed to perform their actions, presuming there are enemies remaining
+  ask zombies [ if count (humans) > 0 [ zombie-ai ] ]
   ask humans [ if count (zombies) > 0 [ human-ai ] ]
   ask projectiles [ if count (zombies) > 0 [ projectile-ai ] ]
-  ask zombies [ if count (humans) > 0 [ zombie-ai ] ]
   ; Iterate
   tick
 end
@@ -249,7 +249,8 @@ to human-launch
   ; Only execute if cooldown is over and projectiles remain.
   if (cooldown-timer <= 0) and (projectiles-remaining > 0) and (not jammed) [
     (ifelse
-      (human-launch-style = "nearest-zombie-in-range") [ human-launch-nearest-zombie-in-range ]
+      (human-launch-style = "nearest-zombie") [ human-launch-nearest-zombie ]
+      (human-launch-style = "shot-leading") [ human-launch-shot-leading ]
       ; TODO Add more launch styles
     )
   ]
@@ -258,10 +259,32 @@ to human-launch
 end
 
 ; Human launches a projectile at nearest zombie in launch range
-to human-launch-nearest-zombie-in-range
+to human-launch-nearest-zombie
   let nearest-zombie (min-one-of zombies [distance myself])
   if (distance nearest-zombie <= launch-range) [
     human-launch-utility (towards nearest-zombie)
+  ]
+end
+
+; Human launches a projectile at nearest zombie in launch range, accounting for shot leading.
+to human-launch-shot-leading
+  ; Identify nearest zombie
+  let nearest-zombie (min-one-of zombies [distance myself])
+  ; Initialize variables
+  let x ( ([xcor] of nearest-zombie) - xcor )
+  let y ( ([ycor] of nearest-zombie) - ycor )
+  let h ( subtract-headings (90) ([heading] of nearest-zombie) )
+  let sz ( [run-speed] of nearest-zombie )
+  let sp ( projectile-speed )
+  ; Calculate impact time and location
+  let impact-time ( - ( 2 * x * sz * Cos (h) + 2 * y * sz * Sin (h) ) - Sqrt ( ( 2 * x * sz * Cos (h) + 2 * y * sz * Sin(h) ) ^ 2 - 4 * ( sz ^ 2 - sp ^ 2 ) * ( x ^ 2 + y ^ 2 ) ) ) / ( 2 * ( sz ^ 2 - sp ^ 2 ) )
+  let xt ( x + Cos (h) * sz * impact-time )
+  let yt ( y + Sin (h) * sz * impact-time )
+  ; Identify shot angle
+  let theta ( Atan (xt) (yt) )
+  ; If impact location is within range, shoot.
+  if Sqrt ( xt ^ 2 + yt ^ 2 ) <= launch-range [
+    human-launch-utility ( theta )
   ]
 end
 
@@ -1195,7 +1218,7 @@ CHOOSER
 556
 human-launch-style
 human-launch-style
-"nearest-zombie-in-range"
+"nearest-zombie" "shot-leading"
 0
 
 SLIDER
@@ -1377,9 +1400,13 @@ Each human is assigned a `jam-rate` according to their projectile type. The jam 
 
 A `jam-rate` of 5% corresponds to a jam on average every 12.5 shots while a `jam-rate` of 1% corresponds to a jam on average every 68.0 shots. The equation for average number of shots before jam for a given jam rate is `shots = ( ln(0.5) / ln(1 - jam-rate) ) - 1`. This equation is the inverse of the geometric cumulative distribution function.
 
-#### Human Launch Style: Nearest Zombie in Range
+#### Human Launch Style: nearest-zombie
 
 The human will identify the closest zombie that is within `launch-range`. If there exists a zombie within this range, the human will launch a projectile at its current location. If not, the human will not launch a projectile. This procedure uses `launch-range` instead of `projectile-range` to allow for finer tuning of shot doctrine.
+
+#### Human Launch Style: shot-leading
+
+The human will identify the closest zombie. The human will identify the `impact-time`, location (`xt` and `yt`), and direction (`theta`) of hitting the closest zombie if they do not change their direction. If the distance is within `launch-range`, the human will alunch a projectile at the impact location. If not, the human will not launch a projectile.
 
 ## Zombie
 
