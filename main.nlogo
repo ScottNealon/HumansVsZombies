@@ -1,6 +1,5 @@
 ; TODO:
 ; * Make world resizale with resize-world and set-patch-size
-; * Implement shot leading
 ; * Turtles move along edges of map instead of sticking. Likely uses "can-move?". Maybe also uses edge of map as influence i.e. 1/distance to edge.
 
 ; #################
@@ -30,14 +29,15 @@ dead-projectiles-own [ hit projectile-type ]
 
 ; Sets all values on interface screen to defaults
 to reset
-  set ticks-per-second (15)
+  set ticks-per-second (30)
   set show-number-projectiles (true)
   set show-zombie-targets (true)
+  set real-time (true)
   set scenario ("charge")
-  set human-charge-spread (25)
+  set human-charge-spread (15)
   set zombie-charge-spread (25)
   set human-move-style ("hit-and-run")
-  set human-jammed-move-style ("zone-evasion")
+  set human-jammed-move-style ("nearest-zombie")
   set human-zone-evasion-radius (20)
   set human-launch-style ("shot-leading")
   set sock-launch-range (35)
@@ -53,13 +53,13 @@ to reset
   set starting-socks (10)
   set sock-speed (35)
   set sock-range (35)
-  set sock-cooldown (1)
+  set sock-cooldown (1.5)
   set sock-inaccuracy (5)
   set sock-jam-rate (0)
   set starting-darts (30)
   set dart-speed (80)
   set dart-range (50)
-  set dart-cooldown (0.5)
+  set dart-cooldown (1)
   set dart-inaccuracy (25)
   set dart-jam-rate (1)
 end
@@ -184,16 +184,19 @@ end
 
 ; Function repeats until end
 to go
+  ; Resets time for loop
+  reset-timer
   ; If there are no humans or no zombies, stop.
   if (count (humans) = 0) or (count (zombies) = 0) [ stop ]
   ; Ask each breed to perform their actions, presuming there are enemies remaining
   ask zombies [ if count (humans) > 0 [ zombie-ai ] ]
   ask humans [ if count (zombies) > 0 [ human-ai ] ]
   ask projectiles [ if count (zombies) > 0 [ projectile-ai ] ]
+  ; If real time, Loops until timer runs out
+  if (real-time) [ while [ timer < (1 / ticks-per-second) ] [ ] ]
   ; Iterate
   tick
 end
-
 
 ; ################
 ; HUMAN PROCEDURES
@@ -641,7 +644,7 @@ sock-cooldown
 sock-cooldown
 0
 5
-1.0
+1.5
 0.1
 1
 s
@@ -656,7 +659,7 @@ ticks-per-second
 ticks-per-second
 1
 100
-15.0
+100.0
 1
 1
 ticks/s
@@ -664,9 +667,9 @@ HORIZONTAL
 
 CHOOSER
 12
-385
+421
 209
-430
+466
 human-move-style
 human-move-style
 "nearest-zombie" "zone-evasion" "hit-and-run"
@@ -674,9 +677,9 @@ human-move-style
 
 SLIDER
 12
-477
+513
 209
-510
+546
 human-zone-evasion-radius
 human-zone-evasion-radius
 0
@@ -704,9 +707,9 @@ HORIZONTAL
 
 CHOOSER
 10
-239
+275
 207
-284
+320
 scenario
 scenario
 "charge" "random"
@@ -791,6 +794,7 @@ PENS
 "Projectiles Hit" 1.0 0 -2674135 true "" "plotxy (ticks / ticks-per-second) (count dead-projectiles with [ hit ])"
 "Projectiles Missed" 1.0 0 -7500403 true "" "plotxy (ticks / ticks-per-second) (count dead-projectiles with [ not hit ])"
 "Projectiles In Air" 1.0 0 -955883 true "" "plotxy (ticks / ticks-per-second) (count projectiles)"
+"Projectiles Remaining" 1.0 0 -6459832 true "" "plotxy (ticks / ticks-per-second) (sum [projectiles-remaining] of humans)"
 
 SLIDER
 228
@@ -861,7 +865,7 @@ dart-cooldown
 dart-cooldown
 0
 5
-0.5
+1.0
 0.1
 1
 s
@@ -1117,9 +1121,9 @@ HORIZONTAL
 
 CHOOSER
 12
-625
+661
 209
-670
+706
 zombie-move-style
 zombie-move-style
 "nearest-human" "targeting"
@@ -1137,9 +1141,9 @@ Simulation Settings
 
 TEXTBOX
 11
-215
+251
 161
-237
+273
 Scenario Settings
 18
 0.0
@@ -1147,9 +1151,9 @@ Scenario Settings
 
 TEXTBOX
 13
-362
+398
 163
-386
+422
 AI Settings
 18
 0.0
@@ -1214,9 +1218,9 @@ NIL
 
 CHOOSER
 12
-511
+547
 209
-556
+592
 human-launch-style
 human-launch-style
 "nearest-zombie" "shot-leading"
@@ -1224,9 +1228,9 @@ human-launch-style
 
 SLIDER
 10
-319
+355
 207
-352
+388
 zombie-charge-spread
 zombie-charge-spread
 0
@@ -1239,14 +1243,14 @@ HORIZONTAL
 
 SLIDER
 10
-285
+321
 207
-318
+354
 human-charge-spread
 human-charge-spread
 0
 50
-25.0
+15.0
 1
 1
 NIL
@@ -1264,19 +1268,19 @@ Simulation Controls
 
 CHOOSER
 12
-431
+467
 209
-476
+512
 human-jammed-move-style
 human-jammed-move-style
 "nearest-zombie" "zone-evasion" "hit-and-run"
-1
+0
 
 SLIDER
 12
-557
+593
 209
-590
+626
 sock-launch-range
 sock-launch-range
 0
@@ -1289,9 +1293,9 @@ HORIZONTAL
 
 SLIDER
 12
-591
+627
 209
-624
+660
 dart-launch-range
 dart-launch-range
 0
@@ -1345,6 +1349,17 @@ count dead-projectiles with [ (not hit) and (projectile-type = \"blaster\") ]
 17
 1
 11
+
+SWITCH
+12
+202
+209
+235
+real-time
+real-time
+0
+1
+-1000
 
 @#$#@#$#@
 # HUMANS VS ZOMBIES
