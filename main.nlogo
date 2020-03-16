@@ -1394,6 +1394,23 @@ horde-target-style
 
 # TO DO LIST
 
+## Implement realistic movement
+#### Description
+Currently, humans and zombies move at up to their max run-speed in any direction. In reality, it takes time to change speed and direction.
+#### Challenges
+* Finding literature on how quickly people can move in different directions
+* Implmenting velocity and acceleration
+
+## Implement realistic targeting
+#### Description
+Currently, humans can fire in any direction on a dime. In reality, blaster users have a significant disadvantage compared to sock users do to the challenge of shooting behind them.
+#### Potential solutions
+* Implementing "firing arcs" and "turret heading" that reset every time a shot is fired.
+
+## Implement realistic awareness
+#### Description
+Currently, humans and zombies are aware of all other humans and zombies. In reality, people have blind spots.
+
 ## Make world resizale with resize-world and set-patch-size
 #### Challenges
 * Changes size of world in interface
@@ -1407,9 +1424,9 @@ horde-target-style
 
 ## Implement "Anti-gravity" human AI
 
-## Implament more sophisticated zombie AI
+## Implement more sophisticated zombie AI
 #### Potential Solutions
-* Look into "Birb" flocking mechanics
+* Look into "Birb" flocking mechanics 
 
 # MODEL DESCRIPTION
 
