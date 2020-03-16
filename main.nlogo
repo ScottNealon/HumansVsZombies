@@ -1,7 +1,3 @@
-; TODO:
-; * Make world resizale with resize-world and set-patch-size
-; * Turtles move along edges of map instead of sticking. Likely uses "can-move?". Maybe also uses edge of map as influence i.e. 1/distance to edge.
-
 ; #################
 ; BREED DEFINITIONS
 ; #################
@@ -1363,6 +1359,25 @@ real-time
 
 @#$#@#$#@
 # HUMANS VS ZOMBIES
+
+# TO DO LIST
+
+## Make world resizale with resize-world and set-patch-size
+#### Challenges
+* Changes size of world in interface
+#### Potential Solutions
+* Make categorical work sizes. Don't give those pesty users full control.
+
+## Make players not stick to walls
+#### Potential Solutions
+* Implementing a "deterance" from being close to the wall
+* May use "can-move?"
+
+## Implement "Anti-gravity" human AI
+
+## Implament more sophisticated zombie AI
+#### Potential Solutions
+* Look into "Birb" flocking mechanics
 
 # MODEL DESCRIPTION
 
