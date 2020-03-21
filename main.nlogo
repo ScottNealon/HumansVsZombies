@@ -33,6 +33,8 @@ to reset
   set scenario ("charge")
   set human-charge-spread (15)
   set zombie-charge-spread (25)
+  set field-size-X (140)
+  set field-size-Y (140)
 
   ; Faction Count Settings
   set num-sock-humans (5)
@@ -82,6 +84,7 @@ to setup
   reset-ticks
 
   ; Setup patches
+  resize-world (- field-size-X / 2) (field-size-X / 2) (- field-size-Y / 2) (field-size-Y / 2)
   ask patches [ set pcolor green ]
 
   ; Setup humans and zombies
@@ -538,8 +541,8 @@ end
 GRAPHICS-WINDOW
 647
 10
-1219
-583
+851
+311
 -1
 -1
 4.0
@@ -552,10 +555,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--70
-70
--70
-70
+-24
+24
+-36
+36
 1
 1
 1
@@ -695,7 +698,7 @@ sock-range
 sock-range
 0
 100
-35.0
+39.0
 1
 1
 ft
@@ -710,7 +713,7 @@ sock-speed
 sock-speed
 0
 100
-35.0
+36.0
 1
 1
 ft/s
@@ -754,7 +757,7 @@ CHOOSER
 human-move-style
 human-move-style
 "nearest-zombie" "zone-evasion" "anti-gravity"
-1
+2
 
 SLIDER
 433
@@ -960,7 +963,7 @@ dart-inaccuracy
 dart-inaccuracy
 0
 45
-25.0
+28.0
 1
 1
 degrees
@@ -1178,7 +1181,7 @@ sock-jam-rate
 sock-jam-rate
 0
 10
-0.0
+0.1
 0.1
 1
 %
@@ -1193,7 +1196,7 @@ dart-jam-rate
 dart-jam-rate
 0
 10
-1.0
+1.1
 0.1
 1
 %
@@ -1354,7 +1357,7 @@ CHOOSER
 human-jammed-move-style
 human-jammed-move-style
 "nearest-zombie" "zone-evasion" "anti-gravity" "hit-and-run"
-0
+3
 
 SLIDER
 433
@@ -1365,7 +1368,7 @@ sock-launch-range
 sock-launch-range
 0
 sock-range
-20.0
+14.0
 1
 1
 ft
@@ -1380,7 +1383,7 @@ dart-launch-range
 dart-launch-range
 0
 dart-range
-20.0
+27.0
 1
 1
 ft
@@ -1449,7 +1452,7 @@ CHOOSER
 horde-target-style
 horde-target-style
 "random" "CG" "nearest-human"
-1
+2
 
 PLOT
 1239
@@ -1488,7 +1491,7 @@ human-edge-avoidance
 human-edge-avoidance
 0
 10
-5.0
+4.0
 0.1
 1
 NIL
@@ -1514,8 +1517,38 @@ human-personal-space
 human-personal-space
 0
 1
-0.05
+0.07
 0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+279
+601
+451
+634
+field-size-Y
+field-size-Y
+40
+200
+72.0
+2
+1
+NIL
+HORIZONTAL
+
+SLIDER
+278
+571
+450
+604
+field-size-X
+field-size-X
+40
+140
+48.0
+2
 1
 NIL
 HORIZONTAL
