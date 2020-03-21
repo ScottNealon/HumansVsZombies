@@ -11,8 +11,9 @@ breed [dead-projectiles dead-projectile]
 
 directed-link-breed [zombie-targets zombie-target]
 
-humans-own [run-speed move-style edge-avoidance hit-and-run personal-space projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining projectile-cooldown cooldown-timer jam-rate launch-range jammed]
-zombies-own [run-speed move-style]
+turtles-own [vx vy max-vel max-acc]
+humans-own [w-avoidance w-edge w-seperation move-style edge-avoidance hit-and-run personal-space projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining projectile-cooldown cooldown-timer jam-rate launch-range jammed]
+zombies-own [w-targeting w-edge w-seperation move-style personal-space]
 projectiles-own [hit projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining traveled]
 dead-humans-own [projectile-type]
 dead-projectiles-own [hit projectile-type]
@@ -62,11 +63,12 @@ to reset
   set dart-jam-rate (1)
 
   ; Human AI Settings
-  set human-move-style ("hit-and-run")
+  set human-move-style ("zone-evasion")
   set human-jammed-move-style ("nearest-zombie")
   set human-hit-and-run (true)
   set human-zone-evasion-radius (20)
   set human-edge-avoidance (5)
+  set human-personal-space (0.3)
   set human-launch-style ("shot-leading")
   set sock-launch-range (20)
   set dart-launch-range (20)
@@ -74,6 +76,7 @@ to reset
   ; Zombie AI Settings
   set zombie-move-style ("nearest-human")
   set horde-target-style ("CG")
+  set zombie-personal-space (0.3)
 end
 
 ; Prepares simulation for running
@@ -128,6 +131,13 @@ to place-humans-and-zombies
   )
 end
 
+; Randomly places turtles according to normal distribution, limited by boundaries
+to random-normal-placement [xmean xstd ymean ystd]
+  let x min (list (max (list (random-normal (xmean) (xstd)) (min-pxcor))) (max-pxcor))
+  let y min (list (max (list (random-normal (ymean) (ystd)) (min-pycor))) (max-pycor))
+  setxy (x) (y)
+end
+
 ; ###############
 ; INIT PROCEDURES
 ; ###############
@@ -136,7 +146,13 @@ end
 to init-human
   set shape ("person")
   set size (1.5 * patch-size) ; 1.5 foot (think top down)
-  set run-speed (human-speed / ticks-per-second)
+  set vx (0)
+  set vy (0)
+  set w-avoidance (human-weight-avoidance)
+  set w-edge (human-weight-edge)
+  set w-seperation (human-weight-seperation)
+  set max-acc (max-acceleration / ticks-per-second)
+  set max-vel (human-speed / ticks-per-second)
   set move-style (human-move-style)
   set edge-avoidance (human-edge-avoidance)
   set hit-and-run (human-hit-and-run)
@@ -179,8 +195,15 @@ to init-zombie
   set shape ("person")
   set size (1.5 * patch-size) ; 1.5 foot (think top down)
   set color (red)
-  set run-speed (zombie-speed / ticks-per-second)
+  set vx (0)
+  set vy (0)
+  set max-acc (max-acceleration / ticks-per-second)
+  set w-targeting (zombie-weight-targeting)
+  set w-edge (zombie-weight-edge)
+  set w-seperation (zombie-weight-seperation)
+  set max-vel (zombie-speed / ticks-per-second)
   set move-style (zombie-move-style)
+  set personal-space (zombie-personal-space)
 end
 
 ; Creates a projectile
@@ -237,6 +260,80 @@ to go
   if (real-time) [while [timer < (1 / ticks-per-second)] [ ]]
 end
 
+; ###########################
+; GENERAL MOVEMENT PROCEDURES
+; ###########################
+
+; Generic move function for humans and zombies according to list of forces and weights
+to move [forces weights]
+
+  ; Sum all forces
+  let fx (0)
+  let fy (0)
+  (foreach (forces) (weights) [ [force weight] ->
+      set fx (fx + weight * (item (0) force))
+      set fy (fy + weight * (item (1) force))
+  ])
+
+  ; If force is greater than 1, normalize.
+  let f (sqrt (fx ^ 2 + fy ^ 2))
+  if (f > 1) [
+    set fx (fx / f)
+    set fy (fy / f)
+  ]
+
+  ; Update velocity
+  set vx (vx + max-acc * fx)
+  set vy (vy + max-acc * fy)
+
+  ; If velocity is greater than max velocity, normalize.
+  let vel (sqrt (vx ^ 2 + vy ^ 2))
+  if vel > max-vel [
+    set vx (vx * max-vel / vel)
+    set vy (vy * max-vel / vel)
+  ]
+
+  ; Limits movement to world border
+  set vx (min (list (max-pxcor - xcor - 0.01) (max (list (min-pxcor - xcor + 0.01) (vx)))))
+  set vy (min (list (max-pycor - ycor - 0.01) (max (list (min-pycor - ycor + 0.01) (vy)))))
+
+  ; Update position
+  set xcor (xcor + vx)
+  set ycor (ycor + vy)
+end
+
+; Identifies force to seperate from a given agentset
+to-report force-seperation [agentset]
+  ifelse (count (agentset) > 0) [
+
+    ; Moves away from nearby agents
+    let xcg (sum [(xcor - [xcor] of myself) / distance (myself) ^ 3] of agentset) ; ^ 2 for proportional seperation, ^ 3 for gravitational seperation
+    let ycg (sum [(ycor - [ycor] of myself) / distance (myself) ^ 3] of agentset) ; ^ 2 for proportional seperation, ^ 3 for gravitational seperation
+    report (list
+      (- xcg / sqrt (xcg ^ 2 + ycg ^ 2))
+      (-  ycg / sqrt (xcg ^ 2 + ycg ^ 2))
+    )
+  ]
+  [ ; If no agents, report no force
+    report (list (0) (0))
+  ]
+end
+
+; Identifies force to move away from world edge
+; Inspiration from https://www.xarg.org/2017/07/how-to-map-a-square-to-a-circle/
+to-report force-edge
+
+  ; Calculates forces in cartesion coordinates
+  let x (-((2 * xcor - (min-pxcor + max-pxcor)) / (max-pxcor - min-pxcor)) ^ 3)
+  let y (-((2 * ycor - (min-pycor + max-pycor)) / (max-pycor - min-pycor)) ^ 3)
+
+  ; Convert to circular
+  let x-prime (x * sqrt (1 - y ^ 2 / 2))
+  let y-prime (y * sqrt (1 - x ^ 2 / 2))
+
+  report (list (x-prime) (y-prime))
+end
+
 ; ################
 ; HUMAN PROCEDURES
 ; ################
@@ -251,35 +348,29 @@ end
 ; Human moves according to movement mode
 to human-move
 
-  ; Move according to move style.
-  let delta (ifelse-value
-    (move-style = "nearest-zombie") [human-move-nearest-zombie]
-    (move-style = "zone-evasion") [human-move-zone-evasion]
-    (move-style = "anti-gravity") [human-move-anti-gravity]
+  ; Identify forces
+  let f-avoidance (ifelse-value
+    (move-style = "nearest-zombie") [human-force-nearest-zombie]
+    (move-style = "zone-evasion") [human-force-zone-evasion]
+    (move-style = "anti-gravity") [human-force-anti-gravity]
   )
+  let f-edge (force-edge)
+  ; let f-seperation (force-seperation (other humans in-radius (personal-space)))
+  let f-seperation (force-seperation (other humans))
+  let forces (list (f-avoidance) (f-edge) (f-seperation))
 
-  ; If human should be advancing, swap directions.
-  let advance ((hit-and-run) and (distance (min-one-of zombies [distance myself]) >= 0.9 * launch-range)) ; Set to 0.9 to ensure within launch range. TODO update
-  let delta-x (ifelse-value (advance) [0 - item (0) (delta)] [item (0) (delta)])
-  let delta-y (ifelse-value (advance) [0 - item (1) (delta)] [item (1) (delta)])
+  ; Udate weights
+  let weights (list (w-avoidance) (w-edge) (w-seperation))
+  if ((hit-and-run) and (distance (min-one-of zombies [distance myself]) >= 0.9 * launch-range)) [
+    set weights (replace-item (0) (weights) (0 - w-avoidance))
+  ]
 
-  ; Identify edge avoidance
-  let delta-x-edge (edge-avoidance * (1 / (xcor - min-pxcor) - 1 / (max-pxcor - xcor)))
-  let delta-y-edge (edge-avoidance * (1 / (ycor - min-pycor) - 5 / (max-pycor - ycor)))
-
-  ; Identify anti-clumping
-  let xcg (sum [(xcor - [xcor] of myself) / distance (myself) ^ 3] of other humans)
-  let ycg (sum [(ycor - [ycor] of myself) / distance (myself) ^ 3] of other humans)
-  let delta-x-anti-clumping (- personal-space * xcg / sqrt (xcg ^ 2 + ycg ^ 2))
-  let delta-y-anti-clumping (- personal-space * ycg / sqrt (xcg ^ 2 + ycg ^ 2))
-
-  ; Face and move
-  facexy (xcor + delta-x + delta-x-edge + delta-x-anti-clumping) (ycor + delta-y + delta-y-edge + delta-y-anti-clumping)
-  fd run-speed
+  ; Move
+  move (forces) (weights)
 end
 
 ; Human moves directly away from nearest zombie
-to-report human-move-nearest-zombie
+to-report human-force-nearest-zombie
   let nearest-zombie (min-one-of zombies [distance myself])
   report (list
     ((xcor - [xcor] of nearest-zombie) / distance nearest-zombie)
@@ -288,7 +379,7 @@ to-report human-move-nearest-zombie
 end
 
 ; Human moves away from center-of-mass of nearby zombies.
-to-report human-move-zone-evasion
+to-report human-force-zone-evasion
 
   ; If there are any zombies in range, identify avoidance patter.
   let zone-zombies zombies in-radius human-zone-evasion-radius
@@ -300,14 +391,13 @@ to-report human-move-zone-evasion
       (ycg / sqrt (xcg ^ 2 + ycg ^ 2))
     )
   ]
-
-  [ ; If there are not any zombies in range, avoid nearest zombie.
-    report human-move-nearest-zombie
+  [ ; If there are not any zombies in range, report no force.
+    report (list (0) (0))
   ]
 end
 
 ; Human moves away from zombies like they were each producing an anti-gravity field
-to-report human-move-anti-gravity
+to-report human-force-anti-gravity
   let x-grav (sum [(xcor - [xcor] of myself) / distance (myself) ^ 3] of zombies) ; Cubed to normalize xcord
   let y-grav (sum [(ycor - [ycor] of myself) / distance (myself) ^ 3] of zombies) ; Cubed to normalize ycord
   report (list
@@ -338,15 +428,18 @@ to human-launch-nearest-zombie
   ]
 end
 
+; TODO Update for current velocity
 ; Human launches a projectile at nearest zombie in launch range, accounting for shot leading.
 to human-launch-shot-leading
   ; Identify nearest zombie
   let nearest-zombie (min-one-of zombies [distance myself])
   ; Initialize variables
-  let x ( ([xcor] of nearest-zombie) - xcor )
-  let y ( ([ycor] of nearest-zombie) - ycor )
-  let h ( subtract-headings (90) ([heading] of nearest-zombie) )
-  let sz ( [run-speed] of nearest-zombie )
+  let x (([xcor] of nearest-zombie) - xcor)
+  let y (([ycor] of nearest-zombie) - ycor)
+  let h (subtract-headings (90) (Atan ([vx] of nearest-zombie) ([vy] of nearest-zombie)))
+  let sz ([sqrt (vx ^ 2 + vy ^ 2)] of nearest-zombie)
+  ; let h ( subtract-headings (90) ([heading] of nearest-zombie) )
+  ; let sz ( [max-vel] of nearest-zombie )
   let sp ( projectile-speed )
   ; Calculate impact time and location
   let impact-time ( - ( 2 * x * sz * Cos (h) + 2 * y * sz * Sin (h) ) - Sqrt ( ( 2 * x * sz * Cos (h) + 2 * y * sz * Sin(h) ) ^ 2 - 4 * ( sz ^ 2 - sp ^ 2 ) * ( x ^ 2 + y ^ 2 ) ) ) / ( 2 * ( sz ^ 2 - sp ^ 2 ) )
@@ -439,27 +532,41 @@ end
 
 ; Zombie moves according to movement mode
 to zombie-move
-  (ifelse
-    (move-style = "nearest-human") [ zombie-move-nearest-human ]
-    (move-style = "horde-target") [ zombie-move-horde-target ]
+
+  ; Identify forces
+  let f-targeting (ifelse-value
+    (move-style = "nearest-human") [zombie-force-nearest-human]
+    (move-style = "horde-target") [zombie-force-horde-target]
   )
+  ; let f-seperation (force-seperation (other zombies in-radius (personal-space)))
+  let f-seperation (force-seperation (other zombies))
+  let forces (list (f-targeting) (f-seperation))
+
+  ; Update weights
+  let weights (list (w-targeting) (w-seperation))
+
+  ; Move
+  move (forces) (weights)
 end
 
 ; Zombie finds nearest human and runs at them
-to zombie-move-nearest-human
+to-report zombie-force-nearest-human
   let nearest-human (min-one-of humans [distance myself])
   ; If there is not a link with the nearest human, kill my links and create one to nearest human
   if not (zombie-target-neighbor? nearest-human)[
     ask my-zombie-targets [ die ]
     create-zombie-target-to nearest-human
   ]
-  ; Run towards nearest human
-  face nearest-human
-  fd run-speed
+  ; Report normalized vector towards nearest human
+  report (list
+    (([xcor] of nearest-human - xcor) / distance nearest-human)
+    (([ycor] of nearest-human - ycor) / distance nearest-human)
+  )
 end
 
 ; All zombies pick a single target and chases them
-to zombie-move-horde-target
+to-report zombie-force-horde-target
+
   ; If there is no target, create one if it is the first tick.
   if ( count (zombie-target-neighbors) = 0) [
     ifelse ( ticks = 0 ) [
@@ -472,9 +579,12 @@ to zombie-move-horde-target
       ]
     ]
   ]
-  ; Face zombie-target and charge them
-  face one-of zombie-target-neighbors
-  fd run-speed
+  let target-human (one-of zombie-target-neighbors)
+  report (list
+    (([xcor] of target-human - xcor) / distance target-human)
+    (([ycor] of target-human - ycor) / distance target-human)
+  )
+
 end
 
 ; Pick horde target according to target-style
@@ -526,13 +636,6 @@ end
 ; Uses NetLogo's angle system {sin(theta), cos(theta)} as opposed to standard angles with {cos(theta), sin(theta)}.
 to-report distance-from-line [x y h]
   report sqrt( ((xcor - x) - sin(h) * ((ycor - y) * cos(h) + (xcor - x) * sin(h))) ^ 2 + ((ycor - y) - cos(h) * ((ycor - y) * cos(h) + (xcor - x) * sin(h))) ^ 2)
-end
-
-; Randomly places turtles according to normal distribution, limited by boundaries
-to random-normal-placement [xmean xstd ymean ystd]
-  let x min (list (max (list (random-normal (xmean) (xstd)) (min-pxcor))) (max-pxcor))
-  let y min (list (max (list (random-normal (ymean) (ystd)) (min-pycor))) (max-pycor))
-  setxy (x) (y)
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -1501,7 +1604,7 @@ SWITCH
 226
 human-hit-and-run
 human-hit-and-run
-0
+1
 1
 -1000
 
@@ -1513,11 +1616,131 @@ SLIDER
 human-personal-space
 human-personal-space
 0
+15
+15.0
 1
-0.05
-0.01
+1
+ft
+HORIZONTAL
+
+SLIDER
+433
+567
+630
+600
+zombie-personal-space
+zombie-personal-space
+0
+15
+15.0
+1
+1
+ft
+HORIZONTAL
+
+SLIDER
+322
+646
+516
+679
+human-weight-avoidance
+human-weight-avoidance
+0
+10
+2.0
+0.1
 1
 NIL
+HORIZONTAL
+
+SLIDER
+322
+682
+494
+715
+human-weight-edge
+human-weight-edge
+0
+5
+1.0
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+322
+719
+518
+752
+human-weight-seperation
+human-weight-seperation
+0
+10
+1.0
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+571
+647
+760
+680
+zombie-weight-targeting
+zombie-weight-targeting
+0
+10
+5.0
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+572
+684
+744
+717
+zombie-weight-edge
+zombie-weight-edge
+0
+10
+0.0
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+570
+722
+767
+755
+zombie-weight-seperation
+zombie-weight-seperation
+0
+10
+2.0
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+456
+773
+644
+806
+max-acceleration
+max-acceleration
+0
+10
+2.0
+0.1
+1
+ft/s^2
 HORIZONTAL
 
 @#$#@#$#@
