@@ -630,10 +630,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-223
-604
-420
-637
+226
+133
+423
+166
 zombie-speed
 zombie-speed
 0
@@ -645,10 +645,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-223
-570
-420
-603
+226
+99
+423
+132
 human-speed
 human-speed
 0
@@ -660,10 +660,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-223
-638
-420
-671
+226
+167
+423
+200
 zombie-tag-range
 zombie-tag-range
 0
@@ -675,10 +675,10 @@ ft
 HORIZONTAL
 
 SLIDER
-223
-672
-420
-705
+226
+201
+423
+234
 zombie-hitbox-radius
 zombie-hitbox-radius
 0
@@ -690,25 +690,25 @@ ft
 HORIZONTAL
 
 SLIDER
-225
-169
-422
-202
+228
+330
+425
+363
 sock-range
 sock-range
 0
 100
-51.0
+50.0
 1
 1
 ft
 HORIZONTAL
 
 SLIDER
-225
-135
-422
-168
+228
+296
+425
+329
 sock-speed
 sock-speed
 0
@@ -720,10 +720,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-225
-203
-422
-236
+228
+364
+425
+397
 sock-cooldown
 sock-cooldown
 0
@@ -775,10 +775,10 @@ ft
 HORIZONTAL
 
 SLIDER
-225
-101
-422
-134
+228
+262
+425
+295
 starting-socks
 starting-socks
 0
@@ -811,10 +811,10 @@ show-number-projectiles
 -1000
 
 SLIDER
-225
-237
-422
-270
+228
+398
+425
+431
 sock-inaccuracy
 sock-inaccuracy
 0
@@ -895,10 +895,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-223
-338
-420
-371
+228
+498
+425
+531
 starting-darts
 starting-darts
 0
@@ -910,10 +910,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-223
-372
-420
-405
+228
+532
+425
+565
 dart-speed
 dart-speed
 0
@@ -925,10 +925,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-223
-406
-420
-439
+228
+566
+425
+599
 dart-range
 dart-range
 0
@@ -940,10 +940,10 @@ ft
 HORIZONTAL
 
 SLIDER
-223
-440
-420
-473
+228
+600
+425
+633
 dart-cooldown
 dart-cooldown
 0
@@ -955,10 +955,10 @@ s
 HORIZONTAL
 
 SLIDER
-223
-474
-420
-507
+228
+634
+425
+667
 dart-inaccuracy
 dart-inaccuracy
 0
@@ -1173,10 +1173,10 @@ count dead-humans with [ projectile-type = \"blaster\" ] / ( count humans with [
 11
 
 SLIDER
-225
-271
-422
-304
+228
+432
+425
+465
 sock-jam-rate
 sock-jam-rate
 0
@@ -1188,10 +1188,10 @@ sock-jam-rate
 HORIZONTAL
 
 SLIDER
-223
-508
-420
-541
+228
+668
+425
+701
 dart-jam-rate
 dart-jam-rate
 0
@@ -1253,30 +1253,30 @@ Faction Count Settings
 1
 
 TEXTBOX
-223
-547
-408
-571
+226
+76
+411
+100
 Faction Abillity Settings
 18
 0.0
 1
 
 TEXTBOX
-225
-77
-375
-99
+228
+238
+378
+260
 Sock Settings
 18
 0.0
 1
 
 TEXTBOX
-223
-311
-373
-333
+228
+471
+378
+493
 Blaster Settings
 18
 0.0
@@ -1318,7 +1318,7 @@ zombie-charge-spread
 zombie-charge-spread
 0
 50
-0.0
+25.0
 1
 1
 NIL
@@ -1333,7 +1333,7 @@ human-charge-spread
 human-charge-spread
 0
 50
-50.0
+25.0
 1
 1
 NIL
