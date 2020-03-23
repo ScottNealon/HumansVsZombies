@@ -541,8 +541,8 @@ end
 GRAPHICS-WINDOW
 647
 10
-851
-311
+1219
+583
 -1
 -1
 4.0
@@ -555,10 +555,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--24
-24
--36
-36
+-70
+70
+-70
+70
 1
 1
 1
@@ -601,9 +601,9 @@ NIL
 
 SLIDER
 10
-472
+537
 207
-505
+570
 num-zombies
 num-zombies
 0
@@ -616,9 +616,9 @@ HORIZONTAL
 
 SLIDER
 10
-404
+469
 207
-437
+502
 num-sock-humans
 num-sock-humans
 0
@@ -630,40 +630,40 @@ NIL
 HORIZONTAL
 
 SLIDER
-10
-570
-207
-603
-zombie-speed
-zombie-speed
-0
-50
-20.0
-1
-1
-ft/s
-HORIZONTAL
-
-SLIDER
-10
-536
-207
-569
-human-speed
-human-speed
-0
-50
-20.0
-1
-1
-ft/s
-HORIZONTAL
-
-SLIDER
-10
+223
 604
-207
+420
 637
+zombie-speed
+zombie-speed
+0
+50
+20.0
+1
+1
+ft/s
+HORIZONTAL
+
+SLIDER
+223
+570
+420
+603
+human-speed
+human-speed
+0
+50
+20.0
+1
+1
+ft/s
+HORIZONTAL
+
+SLIDER
+223
+638
+420
+671
 zombie-tag-range
 zombie-tag-range
 0
@@ -675,10 +675,10 @@ ft
 HORIZONTAL
 
 SLIDER
-10
-638
-207
-671
+223
+672
+420
+705
 zombie-hitbox-radius
 zombie-hitbox-radius
 0
@@ -698,7 +698,7 @@ sock-range
 sock-range
 0
 100
-39.0
+51.0
 1
 1
 ft
@@ -743,7 +743,7 @@ ticks-per-second
 ticks-per-second
 1
 100
-30.0
+27.0
 1
 1
 ticks/s
@@ -757,7 +757,7 @@ CHOOSER
 human-move-style
 human-move-style
 "nearest-zombie" "zone-evasion" "anti-gravity"
-2
+1
 
 SLIDER
 433
@@ -881,9 +881,9 @@ PENS
 
 SLIDER
 10
-438
+503
 207
-471
+536
 num-blaster-humans
 num-blaster-humans
 0
@@ -903,7 +903,7 @@ starting-darts
 starting-darts
 0
 100
-30.0
+18.0
 1
 1
 NIL
@@ -948,7 +948,7 @@ dart-cooldown
 dart-cooldown
 0
 5
-1.0
+0.9
 0.1
 1
 s
@@ -963,7 +963,7 @@ dart-inaccuracy
 dart-inaccuracy
 0
 45
-28.0
+24.0
 1
 1
 degrees
@@ -1196,7 +1196,7 @@ dart-jam-rate
 dart-jam-rate
 0
 10
-1.1
+1.8
 0.1
 1
 %
@@ -1244,19 +1244,19 @@ Human AI Settings
 
 TEXTBOX
 10
-382
+447
 208
-405
+470
 Faction Count Settings
 18
 0.0
 1
 
 TEXTBOX
-10
-513
-195
-537
+223
+547
+408
+571
 Faction Abillity Settings
 18
 0.0
@@ -1318,7 +1318,7 @@ zombie-charge-spread
 zombie-charge-spread
 0
 50
-25.0
+0.0
 1
 1
 NIL
@@ -1333,7 +1333,7 @@ human-charge-spread
 human-charge-spread
 0
 50
-15.0
+50.0
 1
 1
 NIL
@@ -1452,7 +1452,7 @@ CHOOSER
 horde-target-style
 horde-target-style
 "random" "CG" "nearest-human"
-2
+0
 
 PLOT
 1239
@@ -1517,37 +1517,37 @@ human-personal-space
 human-personal-space
 0
 1
-0.07
+0.01
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-279
-601
-451
-634
+10
+409
+207
+442
 field-size-Y
 field-size-Y
 40
 200
-72.0
+140.0
 2
 1
 NIL
 HORIZONTAL
 
 SLIDER
-278
-571
-450
-604
+10
+376
+207
+409
 field-size-X
 field-size-X
 40
 140
-48.0
+140.0
 2
 1
 NIL
