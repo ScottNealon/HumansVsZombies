@@ -33,6 +33,8 @@ to reset
   set scenario ("charge")
   set human-charge-spread (15)
   set zombie-charge-spread (25)
+  set field-size-X (140)
+  set field-size-Y (140)
 
   ; Faction Count Settings
   set num-sock-humans (5)
@@ -82,6 +84,7 @@ to setup
   reset-ticks
 
   ; Setup patches
+  resize-world (- field-size-X / 2) (field-size-X / 2) (- field-size-Y / 2) (field-size-Y / 2)
   ask patches [ set pcolor green ]
 
   ; Setup humans and zombies
@@ -598,9 +601,9 @@ NIL
 
 SLIDER
 10
-472
+537
 207
-505
+570
 num-zombies
 num-zombies
 0
@@ -613,9 +616,9 @@ HORIZONTAL
 
 SLIDER
 10
-404
+469
 207
-437
+502
 num-sock-humans
 num-sock-humans
 0
@@ -627,10 +630,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-10
-570
-207
-603
+226
+133
+423
+166
 zombie-speed
 zombie-speed
 0
@@ -642,10 +645,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-10
-536
-207
-569
+226
+99
+423
+132
 human-speed
 human-speed
 0
@@ -657,10 +660,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-10
-604
-207
-637
+226
+167
+423
+200
 zombie-tag-range
 zombie-tag-range
 0
@@ -672,10 +675,10 @@ ft
 HORIZONTAL
 
 SLIDER
-10
-638
-207
-671
+226
+201
+423
+234
 zombie-hitbox-radius
 zombie-hitbox-radius
 0
@@ -687,40 +690,40 @@ ft
 HORIZONTAL
 
 SLIDER
-225
-169
-422
-202
+228
+330
+425
+363
 sock-range
 sock-range
 0
 100
-35.0
+50.0
 1
 1
 ft
 HORIZONTAL
 
 SLIDER
-225
-135
-422
-168
+228
+296
+425
+329
 sock-speed
 sock-speed
 0
 100
-35.0
+36.0
 1
 1
 ft/s
 HORIZONTAL
 
 SLIDER
-225
-203
-422
-236
+228
+364
+425
+397
 sock-cooldown
 sock-cooldown
 0
@@ -740,7 +743,7 @@ ticks-per-second
 ticks-per-second
 1
 100
-30.0
+27.0
 1
 1
 ticks/s
@@ -772,10 +775,10 @@ ft
 HORIZONTAL
 
 SLIDER
-225
-101
-422
-134
+228
+262
+425
+295
 starting-socks
 starting-socks
 0
@@ -808,10 +811,10 @@ show-number-projectiles
 -1000
 
 SLIDER
-225
-237
-422
-270
+228
+398
+425
+431
 sock-inaccuracy
 sock-inaccuracy
 0
@@ -878,9 +881,9 @@ PENS
 
 SLIDER
 10
-438
+503
 207
-471
+536
 num-blaster-humans
 num-blaster-humans
 0
@@ -892,25 +895,25 @@ NIL
 HORIZONTAL
 
 SLIDER
-223
-338
-420
-371
+228
+498
+425
+531
 starting-darts
 starting-darts
 0
 100
-30.0
+18.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-223
-372
-420
-405
+228
+532
+425
+565
 dart-speed
 dart-speed
 0
@@ -922,10 +925,10 @@ ft/s
 HORIZONTAL
 
 SLIDER
-223
-406
-420
-439
+228
+566
+425
+599
 dart-range
 dart-range
 0
@@ -937,30 +940,30 @@ ft
 HORIZONTAL
 
 SLIDER
-223
-440
-420
-473
+228
+600
+425
+633
 dart-cooldown
 dart-cooldown
 0
 5
-1.0
+0.9
 0.1
 1
 s
 HORIZONTAL
 
 SLIDER
-223
-474
-420
-507
+228
+634
+425
+667
 dart-inaccuracy
 dart-inaccuracy
 0
 45
-25.0
+24.0
 1
 1
 degrees
@@ -1170,30 +1173,30 @@ count dead-humans with [ projectile-type = \"blaster\" ] / ( count humans with [
 11
 
 SLIDER
-225
-271
-422
-304
+228
+432
+425
+465
 sock-jam-rate
 sock-jam-rate
 0
 10
-0.0
+0.1
 0.1
 1
 %
 HORIZONTAL
 
 SLIDER
-223
-508
-420
-541
+228
+668
+425
+701
 dart-jam-rate
 dart-jam-rate
 0
 10
-1.0
+1.8
 0.1
 1
 %
@@ -1241,39 +1244,39 @@ Human AI Settings
 
 TEXTBOX
 10
-382
+447
 208
-405
+470
 Faction Count Settings
 18
 0.0
 1
 
 TEXTBOX
-10
-513
-195
-537
+226
+76
+411
+100
 Faction Abillity Settings
 18
 0.0
 1
 
 TEXTBOX
-225
-77
-375
-99
+228
+238
+378
+260
 Sock Settings
 18
 0.0
 1
 
 TEXTBOX
-223
-311
-373
-333
+228
+471
+378
+493
 Blaster Settings
 18
 0.0
@@ -1330,7 +1333,7 @@ human-charge-spread
 human-charge-spread
 0
 50
-15.0
+25.0
 1
 1
 NIL
@@ -1354,7 +1357,7 @@ CHOOSER
 human-jammed-move-style
 human-jammed-move-style
 "nearest-zombie" "zone-evasion" "anti-gravity" "hit-and-run"
-0
+3
 
 SLIDER
 433
@@ -1365,7 +1368,7 @@ sock-launch-range
 sock-launch-range
 0
 sock-range
-20.0
+14.0
 1
 1
 ft
@@ -1380,7 +1383,7 @@ dart-launch-range
 dart-launch-range
 0
 dart-range
-20.0
+27.0
 1
 1
 ft
@@ -1449,7 +1452,7 @@ CHOOSER
 horde-target-style
 horde-target-style
 "random" "CG" "nearest-human"
-1
+0
 
 PLOT
 1239
@@ -1488,7 +1491,7 @@ human-edge-avoidance
 human-edge-avoidance
 0
 10
-5.0
+4.0
 0.1
 1
 NIL
@@ -1514,8 +1517,38 @@ human-personal-space
 human-personal-space
 0
 1
-0.05
 0.01
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+10
+409
+207
+442
+field-size-Y
+field-size-Y
+40
+200
+140.0
+2
+1
+NIL
+HORIZONTAL
+
+SLIDER
+10
+376
+207
+409
+field-size-X
+field-size-X
+40
+140
+140.0
+2
 1
 NIL
 HORIZONTAL
