@@ -1,0 +1,4 @@
+square
+false
+0
+Rectangle -7500403 true true 30 30 270 270

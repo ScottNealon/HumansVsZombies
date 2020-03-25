@@ -1,0 +1,16 @@
+<experiment name="Blaster Survival Rates" repetitions="50" runMetricsEveryStep="false">
+  <setup>setup</setup>
+  <go>go</go>
+  <metric>count humans</metric>
+  <enumeratedValueSet variable="ticks-per-second">
+    <value value="10"/>
+  </enumeratedValueSet>
+  <enumeratedValueSet variable="real-time">
+    <value value="false"/>
+  </enumeratedValueSet>
+  <enumeratedValueSet variable="num-sock-humans">
+    <value value="0"/>
+  </enumeratedValueSet>
+  <steppedValueSet variable="num-blaster-humans" first="5" step="5" last="30"/>
+  <steppedValueSet variable="num-zombies" first="1" step="1" last="100"/>
+</experiment>

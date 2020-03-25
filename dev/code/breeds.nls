@@ -1,0 +1,18 @@
+; #################
+; BREED DEFINITIONS
+; #################
+
+breed [humans human]
+breed [zombies zombie]
+breed [projectiles projectile]
+breed [dead-humans dead-human]
+breed [dead-zombies dead-zombie]
+breed [dead-projectiles dead-projectile]
+
+directed-link-breed [zombie-targets zombie-target]
+
+humans-own [run-speed move-style edge-avoidance hit-and-run personal-space projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining projectile-cooldown cooldown-timer jam-rate launch-range jammed]
+zombies-own [run-speed move-style]
+projectiles-own [hit projectile-type projectile-range projectile-speed projectile-inaccuracy projectiles-remaining traveled]
+dead-humans-own [projectile-type]
+dead-projectiles-own [hit projectile-type]
