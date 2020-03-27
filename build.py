@@ -98,11 +98,14 @@ class Assembler:
         shape_files = glob.glob(os.path.join(self.dev_dir, shape_type + "/*.txt"))
 
         self.print_contents_directly_from_file(o_file, shape_type + "/default.txt")
+
+        # Bit of a hacky way to ensure alphabetical order is maintained (i.e. circle before circle 2)
+        # Also excludes default.txt
+        shape_files = [ no_ext_path + ".txt" for no_ext_path in sorted([file[0:-4] for file in shape_files if os.path.relpath(file, os.path.join(self.dev_dir, shape_type)) != "default.txt"])]
         for file_path in shape_files:
             shape_file = os.path.relpath(file_path, self.dev_dir)
-            if os.path.relpath(shape_file, shape_type) != "default.txt":
-                o_file.write("\n")
-                self.print_contents_directly_from_file(o_file, shape_file)
+            o_file.write("\n")
+            self.print_contents_directly_from_file(o_file, shape_file)
             
 
     def print_behaviorspace_content(self, o_file):
