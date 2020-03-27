@@ -1,7 +1,11 @@
 import argparse
 import os
 import glob
-import io
+import sys
+import shutil
+
+is_python3 = sys.version_info >= (3, 0)
+
 
 def valid_dev_dir(dev_dir):
     if not os.path.isdir(dev_dir) or not os.access(dev_dir, os.R_OK):
@@ -61,12 +65,24 @@ class Assembler:
 
 
     def print_contents_directly_from_file(self, o_file, input_file_name):
-        with open(os.path.join(self.dev_dir, input_file_name), "r") as i_file:
+        if is_python3:
+            enc = sys.getdefaultencoding()
+            i_file = open(os.path.join(self.dev_dir, input_file_name), "r", encoding=enc)
+        else:
+            i_file = open(os.path.join(self.dev_dir, input_file_name), "r")
+
+        if o_file is not None:
+            shutil.copyfileobj(i_file, o_file)
+
+            i_file.seek(0, os.SEEK_END)
+            if i_file.tell():
+                # append new line at the end if this isn't an empty file
+                o_file.write("\n")
+            
+        if self.print_debug:
             for line in i_file:
-                if self.print_debug:
-                    print(line)  
-                if o_file is not None:
-                    o_file.write(line)
+                print(line)
+        i_file.close()
 
     def print_single_behaviorspace_experiment(self, o_file, input_file_name):
         with open(input_file_name, "r") as i_file:
@@ -77,13 +93,43 @@ class Assembler:
                     o_file.write("  " + line)
         o_file.write("\n")
 
+    def print_shapes(self, o_file, link_shapes=True):
+        shape_type = "link_shapes" if link_shapes else "object_shapes"
+        shape_files = glob.glob(os.path.join(self.dev_dir, shape_type + "/*.txt"))
+
+        with open(os.path.join(self.dev_dir, shape_type + "/default.txt")) as i_file:
+            if o_file is not None:
+                shutil.copyfileobj(i_file, o_file)
+                i_file.seek(0, os.SEEK_END)
+                if i_file.tell():
+                    # append new line at the end if this isn't an empty file
+                    o_file.write("\n")
+            if self.print_debug:
+                for line in i_file:
+                    print(line)
+        for file in shape_files:
+            if os.path.relpath(file, os.path.join(self.dev_dir, shape_type)) != "default.txt":
+                with open(file, "r") as i_file:
+                    if o_file is not None:
+                        o_file.write("\n")
+                        shutil.copyfileobj(i_file, o_file)
+                        i_file.seek(0, os.SEEK_END)
+                        if i_file.tell():
+                            # append new line at the end if this isn't an empty file
+                            o_file.write("\n")
+                    if self.print_debug:
+                        for line in i_file:
+                            print(line)
+
+            
+
     def print_behaviorspace_content(self, o_file):
         if o_file is not None:
             o_file.write("<experiments>\n")
 
-            behaviorspace_files = glob.glob(os.path.join(self.dev_dir, "behavior_space/*.xml"))
-            for file in behaviorspace_files:
-                self.print_single_behaviorspace_experiment(o_file, file)
+        behaviorspace_files = glob.glob(os.path.join(self.dev_dir, "behavior_space/*.xml"))
+        for file in behaviorspace_files:
+            self.print_single_behaviorspace_experiment(o_file, file)
 
         if o_file is not None:
             o_file.write("</experiments>\n")
@@ -93,34 +139,47 @@ class Assembler:
         
         # Code Tab X
         self.print_delimiter(o_file)
+
         # Interface Tab
         self.print_contents_directly_from_file(o_file, 'interface/interface.txt')
         self.print_delimiter(o_file)
-        # Info Tab X
-        self.print_contents_directly_from_file(o_file, 'info.md')
+
+        # Info Tab
+        self.print_contents_directly_from_file(o_file, "info.md")
         self.print_delimiter(o_file)
-        # turtle shapes X
+
+        # turtle shapes
+        self.print_shapes(o_file, False)
         self.print_delimiter(o_file)
-        # NetLogo version X
+
+        # NetLogo version
         self.print_contents_directly_from_file(o_file, 'netlogo_version.txt')
         self.print_delimiter(o_file)
+
         # preview commands Section (unused atm)
         self.print_contents_directly_from_file(o_file, 'preview_commands/preview_commands.txt')
         self.print_delimiter(o_file)
+
         # System Dynamics Modeler Section (unused atm)
         self.print_contents_directly_from_file(o_file, 'system_dynamics_modeler/system_dynamics_modeler.txt')
         self.print_delimiter(o_file)
-        # BehaviorSpace experiments X
+
+        # BehaviorSpace experiments
         self.print_behaviorspace_content(o_file)
         self.print_delimiter(o_file)
+
         # HubNet Client Section (unused atm)
         self.print_contents_directly_from_file(o_file, 'hubnet_client/hubnet_client.txt')
         self.print_delimiter(o_file)
-        # link shapes Section X
+
+        # link shapes Section
+        self.print_shapes(o_file, True)
         self.print_delimiter(o_file)
+
         # model settings Section
         self.print_contents_directly_from_file(o_file, 'model_settings.txt')
         self.print_delimiter(o_file)
+
         # DeltaTick Section (left empty)
 
         if o_file is not None:
