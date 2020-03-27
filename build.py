@@ -97,30 +97,12 @@ class Assembler:
         shape_type = "link_shapes" if link_shapes else "object_shapes"
         shape_files = glob.glob(os.path.join(self.dev_dir, shape_type + "/*.txt"))
 
-        with open(os.path.join(self.dev_dir, shape_type + "/default.txt")) as i_file:
-            if o_file is not None:
-                shutil.copyfileobj(i_file, o_file)
-                i_file.seek(0, os.SEEK_END)
-                if i_file.tell():
-                    # append new line at the end if this isn't an empty file
-                    o_file.write("\n")
-            if self.print_debug:
-                for line in i_file:
-                    print(line)
-        for file in shape_files:
-            if os.path.relpath(file, os.path.join(self.dev_dir, shape_type)) != "default.txt":
-                with open(file, "r") as i_file:
-                    if o_file is not None:
-                        o_file.write("\n")
-                        shutil.copyfileobj(i_file, o_file)
-                        i_file.seek(0, os.SEEK_END)
-                        if i_file.tell():
-                            # append new line at the end if this isn't an empty file
-                            o_file.write("\n")
-                    if self.print_debug:
-                        for line in i_file:
-                            print(line)
-
+        self.print_contents_directly_from_file(o_file, shape_type + "/default.txt")
+        for file_path in shape_files:
+            shape_file = os.path.relpath(file_path, self.dev_dir)
+            if os.path.relpath(shape_file, shape_type) != "default.txt":
+                o_file.write("\n")
+                self.print_contents_directly_from_file(o_file, shape_file)
             
 
     def print_behaviorspace_content(self, o_file):
