@@ -93,6 +93,17 @@ class Assembler:
                     o_file.write("  " + line)
         o_file.write("\n")
 
+    def print_code(self, o_file):
+        code_files = glob.glob(os.path.join(self.dev_dir, "code/*.nls"))
+
+        self.print_contents_directly_from_file(o_file, "code/breeds.nls")
+
+        code_files = [ file for file in code_files if os.path.relpath(file, os.path.join(self.dev_dir, "code")) != "breeds.nls"]
+        for code_path in code_files:
+            code_file = os.path.relpath(code_path, self.dev_dir)
+            self.print_contents_directly_from_file(o_file, code_file)
+
+
     def print_shapes(self, o_file, link_shapes=True):
         shape_type = "link_shapes" if link_shapes else "object_shapes"
         shape_files = glob.glob(os.path.join(self.dev_dir, shape_type + "/*.txt"))
@@ -123,6 +134,7 @@ class Assembler:
         o_file = open(output_file_name, 'w') if output_file_name is not None else None
         
         # Code Tab X
+        self.print_code(o_file)
         self.print_delimiter(o_file)
 
         # Interface Tab

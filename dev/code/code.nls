@@ -1,21 +1,3 @@
-; ##################
-; UTILITY PROCEDURES
-; ##################
-
-; Reports the minimum distance from a point {x, y} to a line starting at {0, 0} at an angle of h.
-; Uses NetLogo's angle system {sin(theta), cos(theta)} as opposed to standard angles with {cos(theta), sin(theta)}.
-to-report distance-from-line [x y h]
-  report sqrt( ((xcor - x) - sin(h) * ((ycor - y) * cos(h) + (xcor - x) * sin(h))) ^ 2 + ((ycor - y) - cos(h) * ((ycor - y) * cos(h) + (xcor - x) * sin(h))) ^ 2)
-end
-
-; Randomly places turtles according to normal distribution, limited by boundaries
-to random-normal-placement [xmean xstd ymean ystd]
-  let x min (list (max (list (random-normal (xmean) (xstd)) (min-pxcor))) (max-pxcor))
-  let y min (list (max (list (random-normal (ymean) (ystd)) (min-pycor))) (max-pycor))
-  setxy (x) (y)
-end
-
-
 ; ################
 ; SETUP PROCEDURES
 ; ################
@@ -515,4 +497,21 @@ to zombie-update-links
   [
     ask zombie-targets [ hide-link ]
   ]
+end
+
+; ##################
+; UTILITY PROCEDURES
+; ##################
+
+; Reports the minimum distance from a point {x, y} to a line starting at {0, 0} at an angle of h.
+; Uses NetLogo's angle system {sin(theta), cos(theta)} as opposed to standard angles with {cos(theta), sin(theta)}.
+to-report distance-from-line [x y h]
+  report sqrt( ((xcor - x) - sin(h) * ((ycor - y) * cos(h) + (xcor - x) * sin(h))) ^ 2 + ((ycor - y) - cos(h) * ((ycor - y) * cos(h) + (xcor - x) * sin(h))) ^ 2)
+end
+
+; Randomly places turtles according to normal distribution, limited by boundaries
+to random-normal-placement [xmean xstd ymean ystd]
+  let x min (list (max (list (random-normal (xmean) (xstd)) (min-pxcor))) (max-pxcor))
+  let y min (list (max (list (random-normal (ymean) (ystd)) (min-pycor))) (max-pycor))
+  setxy (x) (y)
 end
