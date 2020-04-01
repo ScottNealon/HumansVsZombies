@@ -3,6 +3,7 @@ import os
 import glob
 import sys
 import shutil
+import filecmp
 
 is_python3 = sys.version_info >= (3, 0)
 
@@ -62,15 +63,19 @@ def valid_dev_dir(dev_dir):
     return dev_dir
 
 
-parser = argparse.ArgumentParser(description='Generate nlogo file for Humans vs Zombies simulation')
-parser.add_argument('-d', '--dev-folder', type=valid_dev_dir, default='dev/')
-
+parser = argparse.ArgumentParser(description='Generate or deconstruct nlogo file for Humans vs Zombies simulation')
+parser.add_argument("nlogo_filename", help="NetLogo file path to assemble to or to split apart from, depending on mode passed in")
+parser.add_argument('--dev-folder', type=valid_dev_dir, default='dev/', help="Directory to assemble into NetLogo file")
+parser.add_argument('--deconstruct-folder', default='deconstructed/', help="Directory to create and contain deconstructed contents of nlogo file")
+parser.add_argument('-d', '--deconstruct', action='store_true', help="Enable to operate in deconstruct mode and split nlogo file, rather than construct")
+parser.add_argument('-p', '--print_debug', action='store_true', help="Enable to print nlogo file to terminal in addition to writing it to file")
 args = parser.parse_args()
-print(vars(args))
+
 
 class Assembler:
-    def __init__(self, dev_directory, print_debug=False):
+    def __init__(self, dev_directory, nlogo_file=None, print_debug=False):
         self.dev_dir = dev_directory
+        self.nlogo_file = nlogo_file
         self.print_debug = print_debug
 
     def print_delimiter(self, o_file):
@@ -146,8 +151,8 @@ class Assembler:
         if o_file is not None:
             o_file.write("</experiments>\n")
 
-    def generate_file(self, output_file_name = None):
-        o_file = open(output_file_name, 'w') if output_file_name is not None else None
+    def generate_file(self):
+        o_file = open(self.nlogo_file, 'w') if self.nlogo_file is not None else None
         
         # Code Tab X
         self.print_code(o_file)
@@ -229,7 +234,7 @@ class Disassembler:
                 break
             else:
                 filename = line.strip() + ".txt"
-                while line and line.strip() != "" and line.strip() != "@#$#@#$#@":
+                while line and line.strip() != "@#$#@#$#@" and line.strip() != "":
                     # reminder that strip below is just for debug printing. Strip above is intended though
                     lines.append(line)
                     line = nlogo_file.readline()
@@ -259,15 +264,20 @@ class Disassembler:
         xml_tree = ET.fromstring(full_xml_string)
         for child in xml_tree:
             file_name = os.path.join(self.dev_dir, "behavior_space", child.attrib['name'].replace(" ", "_").lower() + ".xml")
-            print(file_name)
             with open(file_name, "w") as experiment_file:
-                # TODO problem here fam: extra new line character at the end AND not indented properly
-                experiment_file.write(ET.tostring(child).decode("utf-8"))
+                experiment_xml = ET.tostring(child).decode("utf-8")
+                lines = experiment_xml.split("\n")
+                for line in lines:
+                    if len(line) >= 2 and line[0] == " " and line[1] == " ":
+                        line = "\n" + line[2:]
+                    if line.strip() != "":
+                        experiment_file.write(line)
 
     def generate_dev_directory(self):
         if os.path.exists(self.dev_dir):
             shutil.rmtree(self.dev_dir);
-        else:
+        
+        if not os.path.exists(self.dev_dir):
             os.mkdir(self.dev_dir)
         os.makedirs(os.path.join(self.dev_dir, "behavior_space"))
         os.makedirs(os.path.join(self.dev_dir, "code"))
@@ -279,35 +289,69 @@ class Disassembler:
         os.makedirs(os.path.join(self.dev_dir, "system_dynamics_modeler"))
         
 
-        with open(self.nlogo_file, "r") as file:
+        if is_python3:
+            enc = sys.getdefaultencoding()
+            i_file = open(os.path.join(self.nlogo_file), "r", encoding=enc)
+        else:
+            i_file = open(os.path.join(self.nlogo_file), "r")
 
-            self.write_directly_to_file_until_delimiter(file, "code/breeds.nls")
-            self.write_directly_to_file_until_delimiter(file, "interface/interface.txt")
-            self.write_directly_to_file_until_delimiter(file, "info.md")
+        self.write_directly_to_file_until_delimiter(i_file, "code/breeds.nls")
+
+        self.write_directly_to_file_until_delimiter(i_file, "interface/interface.txt")
+
+        self.write_directly_to_file_until_delimiter(i_file, "info.md")
+
+        self.write_shape_files(i_file, False)
+
+        self.write_directly_to_file_until_delimiter(i_file, "netlogo_version.txt")
+
+        self.write_directly_to_file_until_delimiter(i_file, "preview_commands/preview_commands.txt")
+
+        self.write_directly_to_file_until_delimiter(i_file, "system_dynamics_modeler/system_dynamics_modeler.txt")
+
+        self.write_behaviorspace_files(i_file)
+
+        self.write_directly_to_file_until_delimiter(i_file, "hubnet_client/hubnet_client.txt")
+
+        self.write_shape_files(i_file, True)
+
+        self.write_directly_to_file_until_delimiter(i_file, "model_settings.txt")
+
+        i_file.close()
 
 
-            #NEED TO IMPLEMENT
-            self.write_shape_files(file, False)
+nlogo_filename = args.nlogo_filename
+dev_folder = args.dev_folder
+deconstruct_folder = args.deconstruct_folder
+print_debug = args.print_debug
 
-            self.write_directly_to_file_until_delimiter(file, "netlogo_version.txt")
+if not args.deconstruct:
+    assembler = Assembler(dev_folder, nlogo_filename, print_debug)
+    assembler.generate_file()
+else:
+    valid_netlogo_file(nlogo_filename)
+    disassembler = Disassembler(nlogo_filename, deconstruct_folder)
+    disassembler.generate_dev_directory()
 
-            self.write_directly_to_file_until_delimiter(file, "preview_commands/preview_commands.txt")
+    # reconstruct_nlogo = os.path.join(deconstruct_folder, "reconstructed.nlogo")
 
-            self.write_directly_to_file_until_delimiter(file, "system_dynamics_modeler/system_dynamics_modeler.txt")
+    # validate_assembler = Assembler(deconstruct_folder, reconstruct_nlogo)
+    # validate_assembler.generate_file()
 
-            self.write_behaviorspace_files(file)
+    # is_same = True
+    # with open(nlogo_filename, 'r') as original_file:
+    #     with open(reconstruct_nlogo, 'r') as new_file:
+    #         o_line = "x"
+    #         n_line = "x"
+    #         while o_line and n_line:
+    #             o_line = original_file.readline()
+    #             n_line = new_file.readline()
+    #             if (o_line and not n_line) or (not o_line and n_line) or (o_line and n_line and o_line.strip() != n_line.strip()):
+    #                 is_same = False
+    #                 break
 
-            self.write_directly_to_file_until_delimiter(file, "hubnet_client/hubnet_client.txt")
+    # if is_same:
+    #     print("NetLogo file constructed from split directory perfectly matches input NetLogo file")
+    # else:
+    #     print("NetLogo file constructed from split directory differs from NetLogo file. It could be minor whitespace differences though, so just run a diff (probably with --strip-trailing-cr) to check for sure")
 
-            self.write_shape_files(file, True)
-
-            self.write_directly_to_file_until_delimiter(file, "model_settings.txt")
-
-
-
-
-# assembler = Assembler(args.dev_folder)
-# assembler.generate_file("test.nlogo")
-
-disassembler = Disassembler("test.nlogo", "DSF")
-disassembler.generate_dev_directory()

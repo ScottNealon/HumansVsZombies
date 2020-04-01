@@ -21,3 +21,19 @@ The NetLogo Desktop format is run from a desktop application. To download the ap
 The model starts out unloaded. Start by pressing "Reset Simulation". This will setup the agents to run a single simulation. Press "Run Simulation" to run the model. When the simulation is complete, press "Reset Simulation" to revert. Press "Reset Settings" to set settings to default values.
 
 A more thorough tutorial for the model can be found under the INFO tab in the model.
+
+## Building the Source Code
+
+To generate the NetLogo file, use the build.py script. It is intended to work for both Python 2.7 and Python 3.5. The dev folder serves as the most up-to-date set of the content being used in the project.
+
+Below are some common commands to use:
+```console
+# Provides details on how to use the script and the flags/arguments the script accepts
+python build.py -h
+
+# Creates a NetLogo file called hvz-vX.nlogo (via the dev/ subdirectory as default)
+python build.py hvz-vX.nlogo
+
+# Takes an existing NetLogo file called hvz-vX.nlogo and creates a directory (at deconstructed/ as default) with the NetLogo content split up accordingly.
+python build.py hvz-vX.nlogo -d
+```

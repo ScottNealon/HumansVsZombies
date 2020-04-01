@@ -3,14 +3,14 @@
   <go>go</go>
   <metric>count humans</metric>
   <enumeratedValueSet variable="ticks-per-second">
-    <value value="10"/>
+    <value value="10" />
   </enumeratedValueSet>
   <enumeratedValueSet variable="real-time">
-    <value value="false"/>
+    <value value="false" />
   </enumeratedValueSet>
   <enumeratedValueSet variable="num-sock-humans">
-    <value value="0"/>
+    <value value="0" />
   </enumeratedValueSet>
-  <steppedValueSet variable="num-blaster-humans" first="5" step="5" last="30"/>
-  <steppedValueSet variable="num-zombies" first="1" step="1" last="100"/>
+  <steppedValueSet first="5" last="30" step="5" variable="num-blaster-humans" />
+  <steppedValueSet first="1" last="100" step="1" variable="num-zombies" />
 </experiment>
