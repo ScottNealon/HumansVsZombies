@@ -1615,7 +1615,7 @@ This model simulates the popular campus game Humans vs Zombies. The model is int
 
 ## Quick Start
 
-The model starts out unloaded. Start by pressing “Reset Simulation”. This will setup the agents to run a single simulation. Press “Run Simulation” to run the model. When the simulation is complete, press “Reset Simulation” to revert. Press “Reset Settings” to set settings to default values.
+The model starts out unloaded. Start by pressing "Reset Simulation". This will setup the agents to run a single simulation. Press "Run Simulation" to run the model. When the simulation is complete, press "Reset Simulation" to revert. Press "Reset Settings" to set settings to default values.
 
 ## Humans vs Zombies Quick Rules
 Humans vs Zombies is a campus-wide game of tag. Players act as either a Human or a Zombie as they try to survive the Zombie Apocalypse or grow the size of the Horde. Zombies attempt to tag Humans to turn them into Zombies, while Humans defend themselves with stunning implements, including sock balls and Nerf blasters.

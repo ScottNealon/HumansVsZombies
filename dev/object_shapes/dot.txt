@@ -1,0 +1,4 @@
+dot
+false
+0
+Circle -7500403 true true 90 90 120

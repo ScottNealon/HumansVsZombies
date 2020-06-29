@@ -1,0 +1,4 @@
+triangle
+false
+0
+Polygon -7500403 true true 150 30 15 255 285 255
